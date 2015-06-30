@@ -46,6 +46,8 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Scripts\DebugUtils.cs" />
+     <Compile Include="Assets\Scripts\Environment.cs" />
      <Compile Include="Assets\Scripts\Player.cs" />
      <Compile Include="Assets\Scripts\RailMaker.cs" />
      <Compile Include="Assets\Scripts\UI.cs" />

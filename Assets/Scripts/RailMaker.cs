@@ -27,19 +27,21 @@ public class RailMaker : MonoBehaviour {
 	// and also about the locaiton of things on the track
 	public class LocationData{
 	
-		public LocationData(float dist, float distAlongSegment, float segmentLength, Vector3 pos, int startIndex){
+		public LocationData(float dist, float distAlongSegment, float segmentLength, Vector3 pos, Quaternion rotation, int startIndex){
 			this.dist = dist;
 			this.distAlongSegment = distAlongSegment;
 			this.segmentLength = segmentLength;
 			this.pos = pos;
+			this.rotation = rotation;
 			this.startIndex = startIndex;
 		}
 		
-		public float 	dist;
-		public float 	distAlongSegment;
-		public float	segmentLength;
-		public Vector3 	pos;
-		public int 		startIndex;
+		public float 		dist;
+		public float 		distAlongSegment;
+		public float		segmentLength;
+		public Vector3 		pos;
+		public Quaternion 	rotation;
+		public int 			startIndex;
 	};
 	
 	
@@ -65,18 +67,24 @@ public class RailMaker : MonoBehaviour {
 	
 
 	public LocationData GetTrackLocation(float trackDist){
+		if (trackDist < 0){
+			int div = (int)(trackDist / trackLength);
+			trackDist += (1 - div) * trackLength;
+			
+		}
 		float useTrackDist = trackDist % trackLength;
 		
 		int index = LookupTrackSegment(useTrackDist);
 		LocationData data = locationData[index];
 		
-		float distLeft = trackDist - data.dist;
+		float distLeft = useTrackDist - data.dist;
 		float segmentLength = data.segmentLength;
 		float propAlongSement = distLeft / segmentLength;
 		LocationData nextData = GetWrappedLocationData(data.startIndex + 1);
 		Vector3 pos = Vector3.Lerp(data.pos, nextData.pos, propAlongSement);
+		Quaternion rotation = Quaternion.Slerp (data.rotation, nextData.rotation, propAlongSement);
 		
-		LocationData newLocation = new LocationData(trackDist, distLeft, segmentLength, pos, data.startIndex);
+		LocationData newLocation = new LocationData(useTrackDist, distLeft, segmentLength, pos, rotation, data.startIndex);
 		
 		return newLocation;
 	}
@@ -184,8 +192,10 @@ public class RailMaker : MonoBehaviour {
 			int thisIndex = i;
 			int nextIndex = (i + 1) % points.Count();
 			Vector3 segment = points[thisIndex] - points[nextIndex];
+			float radians = Mathf.Atan2 (segment.y, segment.x);
+			Quaternion rotation = Quaternion.Euler(0, 0, 270 + Mathf.Rad2Deg * radians);
 			
-			locationData[i] = new LocationData(distTravelled, 0, segment.magnitude, points[i], i);
+			locationData[i] = new LocationData(distTravelled, 0, segment.magnitude, points[i], rotation, i);
 
 			locationData[i].startIndex = i;
 			
