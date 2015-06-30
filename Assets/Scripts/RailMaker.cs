@@ -304,6 +304,13 @@ public class RailMaker : MonoBehaviour {
 			lineIsDirty = false;
 		}
 		RenderLine();
+		
+		if (GameConfig.singleton.enableRail){
+			GetComponent<LineRenderer>().enabled = true;
+		}
+		else{
+			GetComponent<LineRenderer>().enabled = false;
+		}
 	}
 	
 	void ReconstructLineRenderer(){
