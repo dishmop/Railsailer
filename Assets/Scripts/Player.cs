@@ -26,6 +26,8 @@ public class Player : MonoBehaviour {
 		sailAngle = 90 * Input.GetAxis("Horizontal");
 		sailGO.transform.rotation = Quaternion.Euler(0, 0, sailAngle);
 		//Debug.Log(sailAngle);
+		
+		RenderRadialForceGraph();
 	}
 	
 	// Update is called once per frame
@@ -92,7 +94,28 @@ public class Player : MonoBehaviour {
 		
 		sailForce = saleNormal * Vector3.Dot(windForce, saleNormal);
 		fwForce = boatFwDir * Vector3.Dot (sailForce, boatFwDir);
-		
+	}
 	
+	void RenderRadialForceGraph(){
+		Vector3 boatDir = bodyGO.transform.rotation * new Vector3(0, -1, 0);
+		Vector3 currentVel = speed * boatDir;
+		
+		Vector3 sailForce;
+		Vector3 fwForce;
+		Vector3 windForce;
+		
+		
+		
+		for (int i = 0; i < 360; ++i){
+			float testAngle = i - 180f;
+				
+			CalcVectors(testAngle, currentVel, boatDir, out windForce, out sailForce, out fwForce);
+			Quaternion testRot = Quaternion.Euler(0, 0, testAngle);
+			Vector3 saleDir = testRot * new Vector3(0, fwForce.magnitude, 0);
+			Color col = (Vector3.Dot (fwForce, boatDir) > 0) ? Color.green : Color.red; 
+			Debug.DrawLine (transform.position, transform.position + saleDir, col);
+			
+			
+		}
 	}
 }
