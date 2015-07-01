@@ -5,6 +5,7 @@ public class Player : MonoBehaviour {
 	public GameObject bodyGO;
 	public GameObject sailGO;
 	public GameObject fwForceGraphGO;
+	public GameObject sailForceGraphGO;
 	public float sailStrength = 1f;
 	public float mass = 1;
 	
@@ -14,7 +15,8 @@ public class Player : MonoBehaviour {
 	float boatAngle = 0;
 	Vector3 currentVel = Vector3.zero;
 	
-	int cursorID = -1;
+	int fwCursorID = -1;
+	int sailCursorID = -1;
 	
 	
 	
@@ -23,7 +25,8 @@ public class Player : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		cursorID = fwForceGraphGO.GetComponent<UIGraph>().AddVCursor();
+		fwCursorID = fwForceGraphGO.GetComponent<UIGraph>().AddVCursor();
+		sailCursorID = sailForceGraphGO.GetComponent<UIGraph>().AddVCursor();
 	
 	}
 	
@@ -34,12 +37,14 @@ public class Player : MonoBehaviour {
 			sailGO.transform.rotation = Quaternion.Euler(0, 0, sailAngle);
 		}
 		else{
-			if (GameConfig.singleton.enable2DSailOrient){
+			if (GameConfig.singleton.enableJibSailControl){
+			}
+			else if (GameConfig.singleton.enable2DSailOrient){
 				Vector2 dir = new Vector2 (Input.GetAxis("Horizontal2"), Input.GetAxis("Vertical2"));
 				if (dir.magnitude > 0.75){
 					dir.Normalize ();
 					//Debug.DrawLine(transform.position, transform.position + new Vector3(dir.x, dir.y, 0), Color.white);
-					sailAngle = 360  + Mathf.Rad2Deg * Mathf.Atan2(dir.y, dir.x);
+					sailAngle = 360 + 90 + Mathf.Rad2Deg * Mathf.Atan2(dir.y, dir.x);
 					sailAngle = sailAngle % 360;
 					sailGO.transform.rotation = Quaternion.Euler(0, 0, sailAngle);
 				}
@@ -74,7 +79,7 @@ public class Player : MonoBehaviour {
 					bodyGO.transform.rotation = Quaternion.Euler(0, 0, boatAngle);
 				}
 				else{
-					float angleDelta = -2 * Input.GetAxis("Horizontal");
+					float angleDelta = -1 * Input.GetAxis("Horizontal");
 					boatAngle += angleDelta;
 					bodyGO.transform.Rotate(0, 0, angleDelta);
 				}
@@ -86,7 +91,7 @@ public class Player : MonoBehaviour {
 		
 		
 		if (GameConfig.singleton.showForceVisulisation) RenderRadialForceGraph();
-		CreateGraphs();
+		CreateFwGraph();
 	}
 	
 	// Update is called once per frame
@@ -141,20 +146,20 @@ public class Player : MonoBehaviour {
 		
 		
 		// Draw debug fwind vel
-		DebugUtils.DrawArrow(transform.position, transform.position + windForce, Color.blue);
+	//	DebugUtils.DrawArrow(transform.position, transform.position + windForce, Color.blue);
 		
 		// Draw debug Sail normal
 	//	DebugUtils.DrawArror(transform.position, transform.position + saleNormal, Color.yellow);
 		
 		// Debug draw sail push
-		DebugUtils.DrawArrow(transform.position, transform.position + sailForce, Color.red);
+	//	DebugUtils.DrawArrow(transform.position, transform.position + sailForce, Color.red);
 		
 		// Debug draw boat dir
 	//	DebugUtils.DrawArror(transform.position, transform.position + currentVel, Color.green);
 		//DebugUtils.DrawArror(transform.position, transform.position + nextVel, Color.cyan);
 		
 		// Debug draw fwd force on baoat
-		DebugUtils.DrawArrow(transform.position, transform.position + fwForce, Color.magenta);
+	//	DebugUtils.DrawArrow(transform.position, transform.position + fwForce, Color.magenta);
 		
 	}
 	
@@ -185,9 +190,9 @@ public class Player : MonoBehaviour {
 			float testAngle = i - 180f;
 				
 			CalcVectors(testAngle, currentVel, boatDir, out windForce, out sailForce, out fwForce);
-			Quaternion testRot = Quaternion.Euler(0, 0, testAngle-90);
+			Quaternion testRot = Quaternion.Euler(0, 0, testAngle);
 			Vector3 saleDir = testRot * new Vector3(0, fwForce.magnitude, 0);
-			Color col = (Vector3.Dot (fwForce, boatDir) > 0) ? Color.green : Color.red; 
+			Color col = (Vector3.Dot (fwForce, boatDir) > 0) ? new Color(0, 1, 0, 0.5f) : new Color(1, 0, 0, 0.5f); 
 			Debug.DrawLine (transform.position, transform.position + saleDir, col);
 			
 			
@@ -221,10 +226,14 @@ public class Player : MonoBehaviour {
 	}
 	
 	
-	void CreateGraphs(){
-		UIGraph uiGraph = fwForceGraphGO.GetComponent<UIGraph>();
+	void CreateFwGraph(){
+		UIGraph fwGraph = fwForceGraphGO.GetComponent<UIGraph>();
 		float maxWindForce = Environment.singleton.windVel.magnitude * sailStrength;
-		uiGraph.SetAxesRanges(-180, 180, -maxWindForce, maxWindForce);
+		fwGraph.SetAxesRanges(-180, 180, -maxWindForce, maxWindForce);
+		
+		UIGraph sailGraph = sailForceGraphGO.GetComponent<UIGraph>();
+		sailGraph.SetAxesRanges(-180, 180, -maxWindForce, maxWindForce);
+		
 		
 		
 		Vector3 boatDir = bodyGO.transform.rotation * new Vector3(0, -1, 0);
@@ -234,23 +243,29 @@ public class Player : MonoBehaviour {
 		Vector3 fwForce;
 		Vector3 windForce;
 		
-		Vector2[] data = new Vector2[360];
+		Vector2[] fwData = new Vector2[360];
+		Vector2[] sailData = new Vector2[360];
 		for (int i = 0; i < 360; ++i){
 			float x = (float)i - 180f;
 			
 			CalcVectors(x, currentVel, boatDir, out windForce, out sailForce, out fwForce);
 			
 			float y = Vector3.Dot (fwForce, boatDir);
-			data[i] = new Vector2(-x,y);
+			fwData[i] = new Vector2(-x, y);
+			sailData[i] = new Vector2(-x, sailForce.magnitude);
 		}
-		uiGraph.UploadData(data);
+		fwGraph.UploadData(fwData);
+		sailGraph.UploadData(sailData);
 		
 		CalcVectors(sailAngle, currentVel, boatDir, out windForce, out sailForce, out fwForce);
 		
-		uiGraph.SetVCursor(cursorID, new Vector2(180-sailAngle, Vector3.Dot (fwForce, boatDir)));
+		fwGraph.SetVCursor(fwCursorID, new Vector2(180-sailAngle, Vector3.Dot (fwForce, boatDir)));
+		sailGraph.SetVCursor(sailCursorID, new Vector2(180-sailAngle, sailForce.magnitude));
 //		Debug.Log(sailAngle);
 		
 	}
+	
+	
 	
 	
 	void OnTriggerEnter2D(Collider2D collider){

@@ -25,6 +25,14 @@ public class GameCamera : MonoBehaviour {
 			transform.position = initPos;
 		
 		}
+		
+		if (GameConfig.singleton.enableOrientTracking){
+			transform.rotation = objToTrack.transform.rotation;
+			transform.Rotate (0, 0, 180);
+		}
+		else{
+			transform.rotation = Quaternion.identity;
+		}
 	
 	}
 }

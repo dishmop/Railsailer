@@ -1,24 +1,35 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="MonoDevelop.Default" />
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Player.cs">
     <Files>
-      <File FileName="Assets/Scripts/RailMaker.cs" Line="298" Column="4" />
-      <File FileName="Assets/Scripts/UI.cs" Line="1" Column="1" />
-      <File FileName="../AVOW/Assets/Scripts/AVOWCircuitCreator.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/Player.cs" Line="32" Column="64" />
-      <File FileName="Assets/Scripts/DebugUtils.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/Environment.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/GameConfig.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/GameCamera.cs" Line="1" Column="1" />
-      <File FileName="Assets/UIGraph.cs" Line="92" Column="2" />
+      <File FileName="Assets/Scripts/Player.cs" Line="80" Column="27" />
+      <File FileName="Assets/Standard Assets/Environment/Water (Basic)/Shaders/FXWaterBasic.shader" Line="42" Column="23" />
+      <File FileName="Assets/Scripts/GameConfig.cs" Line="8" Column="34" />
+      <File FileName="Assets/Scripts/GameCamera.cs" Line="31" Column="33" />
     </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State expanded="True">
+          <Node name="Assembly-CSharp" expanded="True">
+            <Node name="Scripts" expanded="True">
+              <Node name="Player.cs" selected="True" />
+            </Node>
+          </Node>
+          <Node name="Assembly-CSharp-firstpass" expanded="True">
+            <Node name="Standard Assets" expanded="True">
+              <Node name="Environment" expanded="True">
+                <Node name="Water (Basic)" expanded="True">
+                  <Node name="Shaders" expanded="True" />
+                </Node>
+              </Node>
+            </Node>
+          </Node>
+        </State>
+      </Pad>
+    </Pads>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore>
-      <Breakpoint enabled="false" file="/Users/dac70/ownCloud/CUED_IWTSE/Game prototyping/Unity Demos/Railsailer/Assets/RailMaker.cs" line="29" />
-      <Breakpoint enabled="false" file="/Users/dac70/ownCloud/CUED_IWTSE/Game prototyping/Unity Demos/Railsailer/Assets/Environment.cs" line="16" />
-      <Breakpoint enabled="false" file="/Users/dac70/ownCloud/CUED_IWTSE/Game prototyping/Unity Demos/Railsailer/Assets/Environment.cs" line="17" />
-    </BreakpointStore>
+    <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
 </Properties>
