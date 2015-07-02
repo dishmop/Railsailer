@@ -7,6 +7,7 @@ public class Player : MonoBehaviour {
 	public GameObject fwForceGraphGO;
 	public GameObject sailForceGraphGO;
 	public float sailStrength = 1f;
+	public float boatWindStrength = 0.1f;
 	public float mass = 1;
 	
 	// For use when on rail
@@ -17,12 +18,14 @@ public class Player : MonoBehaviour {
 	
 	int fwCursorID = -1;
 	int sailCursorID = -1;
+	float jibAngle = 0;
 	
 	
 	
 	public float speed = 0;
 	float sailAngle = 0;
-
+	float sailAngleGlob = 0;
+	
 	// Use this for initialization
 	void Start () {
 		fwCursorID = fwForceGraphGO.GetComponent<UIGraph>().AddVCursor();
@@ -32,12 +35,13 @@ public class Player : MonoBehaviour {
 	
 	void Update(){
 		// SAIL
-		if (GameConfig.singleton.enableAudioSail){
+		if (GameConfig.singleton.enableAutoSail){
 			sailAngle = CalcOptimalAngle();
-			sailGO.transform.rotation = Quaternion.Euler(0, 0, sailAngle);
+			sailGO.transform.localRotation = Quaternion.Euler(0, 0, sailAngle);
 		}
 		else{
 			if (GameConfig.singleton.enableJibSailControl){
+				jibAngle = 90 - (Input.GetAxis("RightTrigger") * 45 + 45);
 			}
 			else if (GameConfig.singleton.enable2DSailOrient){
 				Vector2 dir = new Vector2 (Input.GetAxis("Horizontal2"), Input.GetAxis("Vertical2"));
@@ -46,13 +50,13 @@ public class Player : MonoBehaviour {
 					//Debug.DrawLine(transform.position, transform.position + new Vector3(dir.x, dir.y, 0), Color.white);
 					sailAngle = 360 + 90 + Mathf.Rad2Deg * Mathf.Atan2(dir.y, dir.x);
 					sailAngle = sailAngle % 360;
-					sailGO.transform.rotation = Quaternion.Euler(0, 0, sailAngle);
+					sailGO.transform.localRotation = Quaternion.Euler(0, 0, sailAngle);
 				}
 			}
 			else{		
 				if (GameConfig.singleton.enableAbsoluteSailTurn){
 					sailAngle = 90 * Input.GetAxis("Horizontal2");
-					sailGO.transform.rotation = Quaternion.Euler(0, 0, sailAngle);
+					sailGO.transform.localRotation = Quaternion.Euler(0, 0, sailAngle);
 				}
 				else{
 					float angleDelta = -2 * Input.GetAxis("Horizontal2");
@@ -61,6 +65,7 @@ public class Player : MonoBehaviour {
 				}
 			}
 		}
+		sailAngleGlob = sailGO.transform.rotation.eulerAngles.z;
 		
 		// BOAT
 		if (!GameConfig.singleton.enableRail){
@@ -79,7 +84,7 @@ public class Player : MonoBehaviour {
 					bodyGO.transform.rotation = Quaternion.Euler(0, 0, boatAngle);
 				}
 				else{
-					float angleDelta = -1 * Input.GetAxis("Horizontal");
+					float angleDelta = -2 * Input.GetAxis("Horizontal");
 					boatAngle += angleDelta;
 					bodyGO.transform.Rotate(0, 0, angleDelta);
 				}
@@ -92,6 +97,29 @@ public class Player : MonoBehaviour {
 		
 		if (GameConfig.singleton.showForceVisulisation) RenderRadialForceGraph();
 		CreateFwGraph();
+	}
+	
+	void DrawJibRope(float sailAngle, float jibAngle){
+		Vector3 sternPos = bodyGO.transform.TransformPoint(new Vector3(0, 0.5f, 0));
+		Vector3 sailTipPos = sailGO.transform.TransformPoint(new Vector3(0, 0.8f, 0));
+		Vector3 pivotPos = sailGO.transform.TransformPoint(new Vector3(0, 0f, 0));
+		
+		float slack = 0.005f * (jibAngle - sailAngle);
+		Vector3 fwVec = sternPos - sailTipPos;
+		int numPoints = 20;
+		
+		float halfILength = ((float)numPoints-1f)/2f;
+		Vector3[] drawPoints = new Vector3[numPoints];
+		for (int i = 0; i < numPoints; ++i){
+			float propTaut = (1/(float)numPoints) * (halfILength * halfILength - ((float)i - halfILength) * ((float)i - halfILength));
+			Vector3 tautPos = sailTipPos + fwVec * i / (numPoints-1);
+			Vector3 outVec = tautPos - pivotPos;
+			drawPoints[i] = tautPos + slack * propTaut * outVec;
+		}
+		for (int i = 0; i < numPoints-1; ++i){
+			Debug.DrawLine(drawPoints[i], drawPoints[i+1], Color.cyan);
+		}
+				
 	}
 	
 	// Update is called once per frame
@@ -120,29 +148,59 @@ public class Player : MonoBehaviour {
 			currentVel = boatDir * Vector3.Dot(boatDir, currentVel);
 		}
 		
+		if (GameConfig.singleton.enableJibSailControl){
+			// figure out which way the wind is blowing the sale
+			Vector3 saleNormal = sailGO.transform.rotation * new Vector3(1, 0, 0);
+			Vector3 relWindVel = Environment.singleton.windVel - currentVel;
+			Vector3 windForceLoc = (relWindVel * sailStrength).normalized; 
+			float dotResult = Vector3.Dot (saleNormal, windForceLoc);
+			
+			// Clamp to -1, +1
+			dotResult = Mathf.Min (1, Mathf.Max (-1, dotResult));
+			float maxAngle = sailAngle - Mathf.Rad2Deg * Mathf.Asin(dotResult);
+			Debug.Log (jibAngle);
+			if (dotResult > 0){
+				sailAngle = Mathf.Max (-jibAngle, maxAngle);
+			}
+			else{
+				sailAngle = Mathf.Min (jibAngle, maxAngle);
+			}
+			                 
+			DrawJibRope(Mathf.Abs (sailAngle), jibAngle);
+			
+		
+			sailGO.transform.localRotation = Quaternion.Euler(0, 0, sailAngle);
+			
+		}
+		
 		Vector3 sailForce;
 		Vector3 fwForce;
 		Vector3 windForce;
-		CalcVectors(sailAngle, currentVel, boatDir, out windForce, out sailForce, out fwForce);
+		CalcVectors(sailAngleGlob, currentVel, boatDir, out windForce, out sailForce, out fwForce);
+		
+		
+		// Work out force from wind pushing against boat
+		Vector3 boatForce = boatWindStrength * boatDir * Vector3.Dot (windForce, boatDir);
 	
 		
-		// Calc the forces
-	
-		Vector3 accn = fwForce * mass;
+		// Calc accn
+		
+		Vector3 accn = (boatForce + fwForce) * mass;
 		
 		
-		Vector3 motionVec = currentVel * Time.fixedDeltaTime + 0.5f * accn * Time.fixedDeltaTime * Time.fixedDeltaTime;
+		Vector3 motionVec = currentVel * Time.fixedDeltaTime;// + 0.5f * accn * Time.fixedDeltaTime * Time.fixedDeltaTime;
 		Vector3 nextVel = currentVel + accn * Time.fixedDeltaTime;
 		if (GameConfig.singleton.enableRail){
 			railDist += Vector3.Dot (motionVec, boatDir);
 		}
 		else{
-			GetComponent<Rigidbody2D>().velocity = new Vector2(nextVel.x, nextVel.y);
+			//GetComponent<Rigidbody2D>().velocity = new Vector2(nextVel.x, nextVel.y);
+			transform.position += nextVel * Time.fixedDeltaTime;// + 0.5f * accn * Time.fixedDeltaTime;
 			//transform.position += motionVec;
 		}
 		
 		speed = Vector3.Dot (nextVel, boatDir);
-		currentVel = nextVel;
+		currentVel = nextVel * (1-0.3f * Time.fixedDeltaTime);
 		
 		
 		// Draw debug fwind vel
@@ -163,9 +221,9 @@ public class Player : MonoBehaviour {
 		
 	}
 	
-	void CalcVectors(float sailAngle, Vector3 boatVel, Vector3 boatFwDir, out Vector3 windForce, out Vector3 sailForce, out Vector3 fwForce){
+	void CalcVectors(float sailAngleLoc, Vector3 boatVel, Vector3 boatFwDir, out Vector3 windForce, out Vector3 sailForce, out Vector3 fwForce){
 	
-		Quaternion sailOrient = Quaternion.Euler(0, 0, sailAngle);
+		Quaternion sailOrient = Quaternion.Euler(0, 0, sailAngleLoc);
 		Vector3 saleNormal = sailOrient * new Vector3(1, 0, 0);
 		
 		
@@ -257,7 +315,7 @@ public class Player : MonoBehaviour {
 		fwGraph.UploadData(fwData);
 		sailGraph.UploadData(sailData);
 		
-		CalcVectors(sailAngle, currentVel, boatDir, out windForce, out sailForce, out fwForce);
+		CalcVectors(sailAngleGlob, currentVel, boatDir, out windForce, out sailForce, out fwForce);
 		
 		fwGraph.SetVCursor(fwCursorID, new Vector2(180-sailAngle, Vector3.Dot (fwForce, boatDir)));
 		sailGraph.SetVCursor(sailCursorID, new Vector2(180-sailAngle, sailForce.magnitude));
@@ -270,14 +328,19 @@ public class Player : MonoBehaviour {
 	
 	void OnTriggerEnter2D(Collider2D collider){
 		Debug.Log ("OnTriggerEnter2D");
-		currentVel = -0.2f * currentVel;
-		GetComponent<Rigidbody2D>().velocity = new Vector2(currentVel.x, currentVel.y);
-		GetComponent<Rigidbody2D>().MovePosition(GetComponent<Rigidbody2D>().position + 5 * GetComponent<Rigidbody2D>().velocity * Time.fixedDeltaTime);
+//		GetComponent<Rigidbody2D>().velocity = new Vector2(currentVel.x, currentVel.y);
+		// Get move dir
+		Vector3 moveDir = (transform.position - collider.gameObject.transform.position).normalized;
+		transform.position += 0.01f * moveDir;
 		
+		currentVel = Vector3.zero;
 	}
 	
 	void OnTriggerStay2D(Collider2D collider){
 		Debug.Log ("OnTriggerStay2D");
+		Vector3 moveDir = (transform.position - collider.gameObject.transform.position).normalized;
+		transform.position += 0.01f * moveDir;
+		
 		//currentVel = Vector3.zero;
 		
 	}

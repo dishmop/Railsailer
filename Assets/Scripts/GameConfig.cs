@@ -13,7 +13,7 @@ public class GameConfig : MonoBehaviour {
 	public bool enable2DSailOrient = true;
 	public bool enable2DBoatOrient = true;
 	public bool enableJibSailControl = true;
-	public bool enableAudioSail = true;
+	public bool enableAutoSail = true;
 	
 	// Use this for initialization
 	void Start () {

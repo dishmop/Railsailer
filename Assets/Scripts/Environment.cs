@@ -6,6 +6,7 @@ public class Environment : MonoBehaviour {
 	public bool debugShowWindDir = false;
 	public Vector3 windVel;
 	public GameObject particlesGO;
+	public GameObject playerGO;
 
 	// Use this for initialization
 	void Start () {
@@ -33,7 +34,9 @@ public class Environment : MonoBehaviour {
 		float diagDist = (camCentrePos - camCornerPos).magnitude;
 		
 		Vector3 windDir = windVel.normalized;
-		particlesGO.transform.position = Vector3.zero - windDir * diagDist;
+		Vector3 basePos = playerGO.transform.position;
+		basePos.z = -0.2f;
+		particlesGO.transform.position = basePos- windDir * diagDist;
 		
 		
 		
