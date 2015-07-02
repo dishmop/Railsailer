@@ -85,8 +85,11 @@ public class Player : MonoBehaviour {
 				}
 				else{
 					float angleDelta = -2 * Input.GetAxis("Horizontal");
-					boatAngle += angleDelta;
-					bodyGO.transform.Rotate(0, 0, angleDelta);
+					boatAngle += 0.2f * angleDelta * (0.2f + GetComponent<Rigidbody2D>().velocity.magnitude);
+					
+					bodyGO.transform.rotation = Quaternion.Euler(0, 0, boatAngle);
+					GetComponent<SliderJoint2D>().angle = boatAngle+90;
+					GetComponent<SliderJoint2D>().connectedAnchor = transform.position;
 				}
 	
 			}
@@ -194,8 +197,8 @@ public class Player : MonoBehaviour {
 			railDist += Vector3.Dot (motionVec, boatDir);
 		}
 		else{
-			//GetComponent<Rigidbody2D>().velocity = new Vector2(nextVel.x, nextVel.y);
-			transform.position += nextVel * Time.fixedDeltaTime;// + 0.5f * accn * Time.fixedDeltaTime;
+			GetComponent<Rigidbody2D>().AddForce(boatForce + fwForce);
+			//transform.position += nextVel * Time.fixedDeltaTime;// + 0.5f * accn * Time.fixedDeltaTime;
 			//transform.position += motionVec;
 		}
 		
