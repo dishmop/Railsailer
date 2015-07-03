@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 
 public class Player : MonoBehaviour {
@@ -9,9 +10,15 @@ public class Player : MonoBehaviour {
 	public float sailStrength = 1f;
 	public float boatWindStrength = 0.1f;
 	public float mass = 1;
+	public string joystickId = "-J1";
+	public string name;
+	public GameObject cameraTitleTextBox;
+	public GameObject wakeParticleSystem;
 	
 	// For use when on rail
-	public float railDist; 
+	public float railDist;
+	
+	 bool hasTriggerChanged = false;
 	
 	float boatAngle = 180;
 	float boatAngleVel = 0;
@@ -42,7 +49,17 @@ public class Player : MonoBehaviour {
 		}
 		else{
 			if (GameConfig.singleton.enableJibSailControl){
-				jibAngle = 90 - (Input.GetAxis("RightTrigger") * 45 + 45);
+				float triggerValue = Input.GetAxis("RightTrigger" + joystickId);
+				if (triggerValue != 0){
+					hasTriggerChanged = true;
+				}
+				if (!hasTriggerChanged){
+					triggerValue = -1;
+				}
+				float unityJibLength = 1 - 0.5f*(triggerValue + 1);
+				jibAngle = 90 * (Mathf.Pow(unityJibLength, 2));
+				//Debug.Log (unityJibLength);
+				
 			}
 			else if (GameConfig.singleton.enable2DSailOrient){
 				Vector2 dir = new Vector2 (Input.GetAxis("Horizontal2"), Input.GetAxis("Vertical2"));
@@ -68,6 +85,9 @@ public class Player : MonoBehaviour {
 		}
 		sailAngleGlob = sailGO.transform.rotation.eulerAngles.z;
 		
+		Vector3 boatDir = bodyGO.transform.rotation * new Vector3(0, -1, 0);
+		
+		
 		// BOAT
 		if (!GameConfig.singleton.enableRail){
 			if (GameConfig.singleton.enable2DSailOrient){
@@ -85,8 +105,7 @@ public class Player : MonoBehaviour {
 					bodyGO.transform.rotation = Quaternion.Euler(0, 0, boatAngle);
 				}
 				else{
-					Vector3 boatDir = bodyGO.transform.rotation * new Vector3(0, -1, 0);
-					float power = -100*Input.GetAxis("Horizontal");
+					float power = -100*Input.GetAxis("Horizontal" + joystickId);
 					float speed = 0.25f + Vector3.Dot(boatDir, GetComponent<Rigidbody2D>().velocity);
 					float angleAccn = power * speed;
 					boatAngleVel += angleAccn * Time.deltaTime;
@@ -107,6 +126,13 @@ public class Player : MonoBehaviour {
 		
 		if (GameConfig.singleton.showForceVisulisation) RenderRadialForceGraph();
 		CreateFwGraph();
+		
+		cameraTitleTextBox.GetComponent<Text>().text = name;
+		
+		float wakeStrength = Mathf.Max (0, Vector3.Dot (GetComponent<Rigidbody2D>().velocity, boatDir));
+		wakeParticleSystem.GetComponent<ParticleSystem>().startSpeed = 0.3f * wakeStrength;
+		wakeParticleSystem.GetComponent<ParticleSystem>().startLifetime = 2f * wakeStrength;
+		//Debug.Log(Vector3.Dot (GetComponent<Rigidbody2D>().velocity, boatDir));
 	}
 	
 	void DrawJibRope(float sailAngle, float jibAngle){
@@ -168,7 +194,7 @@ public class Player : MonoBehaviour {
 			// Clamp to -1, +1
 			dotResult = Mathf.Min (1, Mathf.Max (-1, dotResult));
 			float maxAngle = sailAngle - Mathf.Rad2Deg * Mathf.Asin(dotResult);
-			Debug.Log (jibAngle);
+//			Debug.Log (jibAngle);
 			if (dotResult > 0){
 				sailAngle = Mathf.Max (-jibAngle, maxAngle);
 			}
@@ -336,23 +362,6 @@ public class Player : MonoBehaviour {
 	
 	
 	
-	void OnTriggerEnter2D(Collider2D collider){
-		Debug.Log ("OnTriggerEnter2D");
-//		GetComponent<Rigidbody2D>().velocity = new Vector2(currentVel.x, currentVel.y);
-		// Get move dir
-		Vector3 moveDir = (transform.position - collider.gameObject.transform.position).normalized;
-		transform.position += 0.01f * moveDir;
-		
-		currentVel = Vector3.zero;
-	}
-	
-	void OnTriggerStay2D(Collider2D collider){
-		Debug.Log ("OnTriggerStay2D");
-		Vector3 moveDir = (transform.position - collider.gameObject.transform.position).normalized;
-		transform.position += 0.01f * moveDir;
-		
-		//currentVel = Vector3.zero;
-		
-	}
+
 	
 }
