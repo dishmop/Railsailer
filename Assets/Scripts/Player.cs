@@ -13,7 +13,8 @@ public class Player : MonoBehaviour {
 	// For use when on rail
 	public float railDist; 
 	
-	float boatAngle = 0;
+	float boatAngle = 180;
+	float boatAngleVel = 0;
 	Vector3 currentVel = Vector3.zero;
 	
 	int fwCursorID = -1;
@@ -84,10 +85,16 @@ public class Player : MonoBehaviour {
 					bodyGO.transform.rotation = Quaternion.Euler(0, 0, boatAngle);
 				}
 				else{
-					float angleDelta = -2 * Input.GetAxis("Horizontal");
-					boatAngle += 0.2f * angleDelta * (0.2f + GetComponent<Rigidbody2D>().velocity.magnitude);
+					Vector3 boatDir = bodyGO.transform.rotation * new Vector3(0, -1, 0);
+					float power = -100*Input.GetAxis("Horizontal");
+					float speed = 0.25f + Vector3.Dot(boatDir, GetComponent<Rigidbody2D>().velocity);
+					float angleAccn = power * speed;
+					boatAngleVel += angleAccn * Time.deltaTime;
+					boatAngleVel *= 0.9f;
+					boatAngle += boatAngleVel * Time.deltaTime;
 					
 					bodyGO.transform.rotation = Quaternion.Euler(0, 0, boatAngle);
+					//GetComponent<Rigidbody2D>().AddTorque(angleAccn);
 					GetComponent<SliderJoint2D>().angle = boatAngle+90;
 					GetComponent<SliderJoint2D>().connectedAnchor = transform.position;
 				}

@@ -27,15 +27,18 @@ public class Environment : MonoBehaviour {
 		particles.startSpeed = windVel.magnitude;
 		
 		// position it off screen
-		Vector3 camCentrePos = Camera.main.transform.position;
-		Vector3 camCornerPos = Camera.main.ScreenToWorldPoint(Vector3.zero);
-		camCentrePos.z = 0;
-		camCornerPos.z = 0;
-		float diagDist = (camCentrePos - camCornerPos).magnitude;
+//		Vector3 camCentrePos = Camera.main.transform.position;
+//		Vector3 camCornerPos = Camera.main.ScreenToWorldPoint(Vector3.zero);
+//		camCentrePos.z = 0;
+//		camCornerPos.z = 0;
+//		float diagDist = (camCentrePos - camCornerPos).magnitude;
+		float diagDist = 50;
 		
 		Vector3 windDir = windVel.normalized;
 		Vector3 basePos = playerGO.transform.position;
-		basePos.z = -0.2f;
+
+		basePos = Vector3.zero;
+		basePos.z = -1f;
 		particlesGO.transform.position = basePos- windDir * diagDist;
 		
 		
