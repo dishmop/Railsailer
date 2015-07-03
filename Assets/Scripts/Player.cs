@@ -11,9 +11,21 @@ public class Player : MonoBehaviour {
 	public float boatWindStrength = 0.1f;
 	public float mass = 1;
 	public string joystickId = "-J1";
-	public string name;
+	public string playerName;
 	public GameObject cameraTitleTextBox;
 	public GameObject wakeParticleSystem;
+	
+	public enum RacingState{
+		kInit,
+		kWaitingToStart,
+		kRacing0,
+		kRacing2,
+		kRacing3,
+		kCompleteWinner,
+		kCompleteLoser
+	}
+	
+	public RacingState racingState = RacingState.kInit;
 	
 	// For use when on rail
 	public float railDist;
@@ -42,6 +54,13 @@ public class Player : MonoBehaviour {
 	}
 	
 	void Update(){
+		if (!GameMode.singleton.IsRacing()){
+			wakeParticleSystem.GetComponent<ParticleSystem>().startSpeed = 0;
+			wakeParticleSystem.GetComponent<ParticleSystem>().startLifetime = 0;
+			
+			return;
+		}
+		
 		// SAIL
 		if (GameConfig.singleton.enableAutoSail){
 			sailAngle = CalcOptimalAngle();
@@ -127,7 +146,7 @@ public class Player : MonoBehaviour {
 		if (GameConfig.singleton.showForceVisulisation) RenderRadialForceGraph();
 		CreateFwGraph();
 		
-		cameraTitleTextBox.GetComponent<Text>().text = name;
+		cameraTitleTextBox.GetComponent<Text>().text = playerName;
 		
 		float wakeStrength = Mathf.Max (0, Vector3.Dot (GetComponent<Rigidbody2D>().velocity, boatDir));
 		wakeParticleSystem.GetComponent<ParticleSystem>().startSpeed = 0.3f * wakeStrength;
@@ -160,6 +179,11 @@ public class Player : MonoBehaviour {
 	
 	// Update is called once per frame
 	void FixedUpdate () {
+		if (!GameMode.singleton.IsRacing()){
+			GetComponent<Rigidbody2D>().velocity = Vector3.zero;
+			return;
+		}
+		
 		if (GameConfig.singleton.enableRail){
 			if (RailMaker.singleton.HasLocationData()){
 				RailMaker.LocationData data = RailMaker.singleton.GetTrackLocation(railDist);
@@ -254,7 +278,12 @@ public class Player : MonoBehaviour {
 		
 		// Debug draw fwd force on baoat
 	//	DebugUtils.DrawArrow(transform.position, transform.position + fwForce, Color.magenta);
+	
+		HandleRacingState();
 		
+	}
+	
+	void HandleRacingState(){
 	}
 	
 	void CalcVectors(float sailAngleLoc, Vector3 boatVel, Vector3 boatFwDir, out Vector3 windForce, out Vector3 sailForce, out Vector3 fwForce){

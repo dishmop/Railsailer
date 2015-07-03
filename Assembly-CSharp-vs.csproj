@@ -55,6 +55,7 @@
      <Compile Include="Assets\Scripts\RailMaker.cs" />
      <Compile Include="Assets\Scripts\UI.cs" />
      <Compile Include="Assets\Scripts\UIGraph.cs" />
+     <Compile Include="Assets\Signals.cs" />
      <None Include="Assets\Standard Assets\Environment\Water\Water4\Shaders\FXWater4Simple.shader" />
      <None Include="Assets\Standard Assets\Environment\Water (Basic)\Shaders\FXWaterBasic.shader" />
      <None Include="Assets\Standard Assets\CrossPlatformInput\CrossPlatformInputGuidelines.txt" />
