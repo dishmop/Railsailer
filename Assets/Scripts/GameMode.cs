@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 
 public class GameMode : MonoBehaviour {
@@ -10,9 +11,13 @@ public class GameMode : MonoBehaviour {
 		kSignalOn1,
 		kSignalOn2,
 		kSignalOn3,
-		kRace
+		kRace,
+		kRaceComplete
 	}
 	public Mode mode = Mode.kInit;
+	public GameObject gameCompletePanel;
+	
+	GameObject winningPlayer;
 	
 	float countStepDuration = 1;
 	
@@ -26,6 +31,12 @@ public class GameMode : MonoBehaviour {
 	public bool IsRacing(){
 		return mode == Mode.kRace || mode == Mode.kSignalOn3;
 	}
+	
+	public void TriggerWinner(GameObject winner){
+		winningPlayer = winner;
+		mode = Mode.kRaceComplete;
+	
+	}
 
 	// Use this for initialization
 	void Start () {
@@ -35,6 +46,13 @@ public class GameMode : MonoBehaviour {
 	
 	// Update is called once per frame
 	void FixedUpdate () {
+	
+		if (mode == Mode.kRaceComplete){
+			gameCompletePanel.SetActive(true);
+			gameCompletePanel.transform.FindChild("Text").GetComponent<Text>().text = winningPlayer.name + " is the Winner!";
+			return;
+		}
+		gameCompletePanel.SetActive(false);
 	
 		if (mode == Mode.kInit){
 			countInTime = 0;

@@ -14,6 +14,7 @@ public class GameConfig : MonoBehaviour {
 	public bool enable2DBoatOrient = true;
 	public bool enableJibSailControl = true;
 	public bool enableAutoSail = true;
+	public int totalNumLaps = 3;
 	
 	// Use this for initialization
 	void Start () {

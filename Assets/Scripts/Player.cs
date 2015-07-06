@@ -12,23 +12,24 @@ public class Player : MonoBehaviour {
 	public float mass = 1;
 	public string joystickId = "-J1";
 	public string playerName;
-	public GameObject cameraTitleTextBox;
+	public GameObject hud;
 	public GameObject wakeParticleSystem;
 	
 	public enum RacingState{
-		kInit,
 		kWaitingToStart,
-		kRacing0,
-		kRacing2,
-		kRacing3,
+		kRacing,
 		kCompleteWinner,
 		kCompleteLoser
 	}
 	
-	public RacingState racingState = RacingState.kInit;
+	public RacingState racingState = RacingState.kWaitingToStart;
+	public int numLapsComplete = 0;
 	
 	// For use when on rail
 	public float railDist;
+	
+	string lastTriggerName = "FWTrigger";
+	bool enableLapCounter = false;
 	
 	 bool hasTriggerChanged = false;
 	
@@ -54,12 +55,20 @@ public class Player : MonoBehaviour {
 	}
 	
 	void Update(){
+		hud.transform.FindChild("NameBox").GetComponent<Text>().text = playerName;
+		hud.transform.FindChild("LapInfo").GetComponent<Text>().text = "Lap " + (numLapsComplete + 1) +  " of " + GameConfig.singleton.totalNumLaps;
+		
 		if (!GameMode.singleton.IsRacing()){
 			wakeParticleSystem.GetComponent<ParticleSystem>().startSpeed = 0;
 			wakeParticleSystem.GetComponent<ParticleSystem>().startLifetime = 0;
 			
 			return;
 		}
+		else if (racingState == RacingState.kWaitingToStart){
+			racingState = RacingState.kRacing;
+		}
+		
+	
 		
 		// SAIL
 		if (GameConfig.singleton.enableAutoSail){
@@ -146,7 +155,6 @@ public class Player : MonoBehaviour {
 		if (GameConfig.singleton.showForceVisulisation) RenderRadialForceGraph();
 		CreateFwGraph();
 		
-		cameraTitleTextBox.GetComponent<Text>().text = playerName;
 		
 		float wakeStrength = Mathf.Max (0, Vector3.Dot (GetComponent<Rigidbody2D>().velocity, boatDir));
 		wakeParticleSystem.GetComponent<ParticleSystem>().startSpeed = 0.3f * wakeStrength;
@@ -388,9 +396,39 @@ public class Player : MonoBehaviour {
 		
 	}
 	
+	void OnTriggerStartLine(){
+		if (numLapsComplete == GameConfig.singleton.totalNumLaps){
+			GameMode.singleton.TriggerWinner(gameObject);
+		}
+	}
 	
 	
 	
+	void OnTriggerEnter2D(Collider2D collider){
+		string triggerName = collider.gameObject.name;
+		
+		if (triggerName == "FWTrigger"){
+			enableLapCounter = true;
+			
+		}
+		
+		if (!enableLapCounter) return;
+		
+		Debug.Log ("triggerName = " + triggerName + ", lastTriggerName = " + lastTriggerName);
+		
+		if (lastTriggerName == "BWTrigger" && triggerName == "StartLine"){
+			numLapsComplete++;
+			OnTriggerStartLine();
+			
+		}
+		else if (lastTriggerName == "FWTrigger" && triggerName == "StartLine"){
+			numLapsComplete--;
+		}
+		
+		lastTriggerName = triggerName;
+		
+
+	}
 
 	
 }
