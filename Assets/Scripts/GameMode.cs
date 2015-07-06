@@ -17,7 +17,7 @@ public class GameMode : MonoBehaviour {
 	public Mode mode = Mode.kInit;
 	public GameObject gameCompletePanel;
 	
-	GameObject winningPlayer;
+	public GameObject winningPlayer;
 	
 	float countStepDuration = 1;
 	

@@ -54,4 +54,16 @@ public class DebugUtils{
 		Debug.DrawLine (endPos, sidePos0, col);
 		Debug.DrawLine (endPos, sidePos1, col);
 	}
+	
+	public static void DrawCircle(Vector3 startPos, float radius, Color col){
+		int numPoints = (int)(radius+1) * 10;
+		for (int i = 0; i < numPoints; ++i){
+			float angleRadFrom = 2 * Mathf.PI * (float)i / (float)numPoints;
+			float angleRadTo = 2 * Mathf.PI * (float)(i+1) / (float)numPoints;
+			Vector3 unitOffsetFrom = new Vector3(Mathf.Sin(angleRadFrom), Mathf.Cos(angleRadFrom), 0);
+			Vector3 unitOffsetTo = new Vector3(Mathf.Sin(angleRadTo), Mathf.Cos(angleRadTo), 0);
+			Debug.DrawLine (startPos + radius * unitOffsetFrom, startPos + radius * unitOffsetTo, col);
+			
+		}
+	}
 }

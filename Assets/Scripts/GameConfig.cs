@@ -6,16 +6,16 @@ public class GameConfig : MonoBehaviour {
 
 	public bool enableTracking = true;
 	public bool enableOrientTracking = false;
-	public bool enableRail = true;
-	public bool showForceVisulisation = true;
-	public bool enableAbsoluteSailTurn = true;
-	public bool enableAbsoluteBoatTurn = false;
-	public bool enable2DSailOrient = true;
-	public bool enable2DBoatOrient = true;
-	public bool enableJibSailControl = true;
+//	public bool enableRail = true;
+//	public bool showForceVisulisation = true;
+//	public bool enableAbsoluteSailTurn = true;
+//	public bool enableAbsoluteBoatTurn = false;
+//	public bool enable2DSailOrient = true;
+//	public bool enable2DBoatOrient = true;
+//	public bool enableJibSailControl = true;
 	public bool enableAutoSail = true;
 	public int totalNumLaps = 3;
-	
+	public bool enableEdit = false;
 	// Use this for initialization
 	void Start () {
 	

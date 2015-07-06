@@ -65,6 +65,25 @@ public class RailMaker : MonoBehaviour {
 		return (locationData.Count() > 2);
 	}
 	
+	
+	public LocationData GetTrackLocation(Vector3 pos){
+	
+		float minDist = 100;
+		int locIndex = 0;
+		for (int i = 0; i < locationData.Count (); ++i){
+			LocationData data = locationData[i];
+			Vector3 vecToTrack = data.pos - pos;
+			float distToTrack = vecToTrack.magnitude;
+			if (distToTrack < minDist){
+				locIndex = i;
+				minDist = distToTrack;
+			}
+			
+		}
+		return locationData[locIndex]; 
+		
+	}
+	
 
 	public LocationData GetTrackLocation(float trackDist){
 		if (trackDist < 0){
@@ -280,6 +299,7 @@ public class RailMaker : MonoBehaviour {
 	
 	// Use this for initialization
 	void Start () {
+		LoadTrack()	;
 		
 	}
 	
@@ -305,7 +325,7 @@ public class RailMaker : MonoBehaviour {
 		}
 		RenderLine();
 		
-		if (GameConfig.singleton.enableRail){
+		if (GameConfig.singleton.enableEdit){
 			GetComponent<LineRenderer>().enabled = true;
 		}
 		else{

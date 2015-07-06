@@ -17,7 +17,7 @@ public class UIGraph : MonoBehaviour {
 	float yAxisMin = -2;
 	float yAxisMax = 2;
 	
-	float vCursorSizeProp = 0.2f;
+	//float vCursorSizeProp = 0.2f;
 	
 	Vector2[] data;
 	
