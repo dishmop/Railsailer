@@ -64,8 +64,6 @@ public class Player : MonoBehaviour {
 		if (!GameMode.singleton.IsRacing()){
 			wakeParticleSystem.GetComponent<ParticleSystem>().startSpeed = 0;
 			wakeParticleSystem.GetComponent<ParticleSystem>().startLifetime = 0;
-			
-			return;
 		}
 		
 		// SAIL
@@ -98,11 +96,16 @@ public class Player : MonoBehaviour {
 			
 			Vector3 desDir = (datalookAhead.pos - transform.position).normalized;
 			float crossResult = Vector3.Cross (desDir, boatDir).z;
-			float reqAngleDelta = Mathf.Acos(crossResult);
 			power = -100*crossResult;
 			
 		}
-		float speed = 0.25f + Vector3.Dot(boatDir, GetComponent<Rigidbody2D>().velocity);
+		float speed = Vector3.Dot(boatDir, GetComponent<Rigidbody2D>().velocity);
+		if (speed >= 0f){
+			speed += 0.5f;
+		}
+		else{
+			speed -= 0.5f;
+		}
 		float angleAccn = power * speed;
 		boatAngleVel += angleAccn * Time.deltaTime;
 		boatAngleVel *= 0.9f;
@@ -255,16 +258,8 @@ public class Player : MonoBehaviour {
 	
 	// Update is called once per frame
 	void FixedUpdate () {
-		if (!GameMode.singleton.IsRacing()){
-			if (GameMode.singleton.mode != GameMode.Mode.kRaceComplete){
-				GetComponent<Rigidbody2D>().velocity = Vector3.zero;
-			}
-			return;
-		}
 		
 	
-		
-		
 		// calc current Vel;
 		Vector3 boatDir = bodyGO.transform.rotation * new Vector3(0, -1, 0);
 		currentVel = boatDir * Vector3.Dot(boatDir, currentVel);
@@ -302,6 +297,14 @@ public class Player : MonoBehaviour {
 		GetComponent<Rigidbody2D>().AddForce(boatForce + fwForce);
 
 		currentVel = nextVel * (1-0.3f * Time.fixedDeltaTime);
+		
+		if (!GameMode.singleton.IsRacing()){
+			if (GameMode.singleton.mode != GameMode.Mode.kRaceComplete){
+				GetComponent<Rigidbody2D>().velocity = Vector3.zero;
+				currentVel = Vector3.zero;
+			}
+		}
+		
 		
 		
 	}

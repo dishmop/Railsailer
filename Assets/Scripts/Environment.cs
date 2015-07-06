@@ -7,6 +7,9 @@ public class Environment : MonoBehaviour {
 	public Vector3 windVel;
 	public GameObject particlesGO;
 	public GameObject playerGO;
+	
+
+	float distDiagProp = 0;
 
 	// Use this for initialization
 	void Start () {
@@ -39,8 +42,9 @@ public class Environment : MonoBehaviour {
 
 		basePos = Vector3.zero;
 		basePos.z = -1f;
-		particlesGO.transform.position = basePos- windDir * diagDist;
+		particlesGO.transform.position = basePos- windDir * Mathf.Lerp (5, diagDist, distDiagProp);
 		
+ 		distDiagProp = Mathf.Min (distDiagProp + 0.001f, 1);
 		
 		
 	}
