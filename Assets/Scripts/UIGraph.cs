@@ -54,8 +54,7 @@ public class UIGraph : MonoBehaviour {
 	Material cursorMaterial;
 	List<VectorLine>	cursorLines = new List<VectorLine>();
 	
-	
-	Material vectrosityMaterialPrefab;
+
 	
 	
 	
@@ -93,22 +92,18 @@ public class UIGraph : MonoBehaviour {
 		}
 		
 		
-		// Make a prefab from the material the SetLine uses so we can clone it and use it again,. 
-		VectorLine tempLine = VectorLine.SetLine(Color.green, Vector2.zero,Vector2.zero);
-		vectrosityMaterialPrefab = tempLine.material;
-		VectorLine.Destroy(ref tempLine);
-		
-		axesMaterial = Material.Instantiate(vectrosityMaterialPrefab);
+
+		axesMaterial = Material.Instantiate(UI.singleton.vectrosityMaterialPrefab);
 		axesMaterial.color = axesCol;
 		
-		dataMaterial = Material.Instantiate(vectrosityMaterialPrefab);
+		dataMaterial = Material.Instantiate(UI.singleton.vectrosityMaterialPrefab);
 		dataMaterial.color = dataCol;
 		
 		
-		borderMaterial = Material.Instantiate(vectrosityMaterialPrefab);
+		borderMaterial = Material.Instantiate(UI.singleton.vectrosityMaterialPrefab);
 		borderMaterial.color = borderCol;
 		
-		cursorMaterial = Material.Instantiate(vectrosityMaterialPrefab);
+		cursorMaterial = Material.Instantiate(UI.singleton.vectrosityMaterialPrefab);
 		cursorMaterial.color = cursorCol;
 
 		UploadData(data);

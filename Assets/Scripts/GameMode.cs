@@ -19,7 +19,7 @@ public class GameMode : MonoBehaviour {
 	
 	public GameObject winningPlayer;
 	
-	float countStepDuration = 1;
+	float countStepDuration = 2;
 	
 	float countInTime = 0;
 	

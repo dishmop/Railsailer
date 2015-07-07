@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using System.Linq;
+using Vectrosity;
 
 public class Player : MonoBehaviour {
 	public GameObject bodyGO;
@@ -18,6 +20,9 @@ public class Player : MonoBehaviour {
 	
 	GameObject sailForceGraphGO;
 	GameObject fwForceGraphGO;
+	
+	VectorLine jibLine;
+	Material jibMaterial;
 	
 	public int numLapsComplete = 0;
 	
@@ -49,6 +54,9 @@ public class Player : MonoBehaviour {
 		sailCursorID = sailForceGraphGO.GetComponent<UIGraph>().AddVCursor();
 		fwCursorID = fwForceGraphGO.GetComponent<UIGraph>().AddVCursor();
 		
+		jibMaterial = Material.Instantiate(UI.singleton.vectrosityMaterialPrefab);
+		jibMaterial.color = Color.white;
+		
 	}
 	
 	void Update(){
@@ -72,16 +80,17 @@ public class Player : MonoBehaviour {
 		}
 		
 		// SAIL
-		float triggerValue = Input.GetAxis("RightTrigger" + joystickId);
-		if (triggerValue != 0){
-			hasTriggerChanged = true;
+		if (!enableAI){
+			float triggerValue = Input.GetAxis("RightTrigger" + joystickId);
+			if (triggerValue != 0){
+				hasTriggerChanged = true;
+			}
+			if (!hasTriggerChanged){
+				triggerValue = -1;
+			}
+			float unitJibLength = 1 - 0.5f*(triggerValue + 1);
+			jibAngle = 90 * (Mathf.Pow(unitJibLength, 2));
 		}
-		if (!hasTriggerChanged){
-			triggerValue = -1;
-		}
-		float unityJibLength = 1 - 0.5f*(triggerValue + 1);
-		jibAngle = 90 * (Mathf.Pow(unityJibLength, 2));
-		
 		
 		sailAngleGlob = sailGO.transform.rotation.eulerAngles.z;
 		
@@ -130,6 +139,9 @@ public class Player : MonoBehaviour {
 		float wakeStrength = Mathf.Max (0, Vector3.Dot (GetComponent<Rigidbody2D>().velocity, boatDir));
 		wakeParticleSystem.GetComponent<ParticleSystem>().startSpeed = 0.3f * wakeStrength;
 		wakeParticleSystem.GetComponent<ParticleSystem>().startLifetime = 2f * wakeStrength;
+		
+		DrawJibRope(Mathf.Abs (sailAngle), jibAngle);
+		
 
 	}
 //	
@@ -243,7 +255,7 @@ public class Player : MonoBehaviour {
 		Vector3 sailTipPos = sailGO.transform.TransformPoint(new Vector3(0, 0.8f, 0));
 		Vector3 pivotPos = sailGO.transform.TransformPoint(new Vector3(0, 0f, 0));
 		
-		float slack = 0.005f * (jibAngle - sailAngle);
+		float slack = 0.002f * (jibAngle - sailAngle);
 		Vector3 fwVec = sternPos - sailTipPos;
 		int numPoints = 20;
 		
@@ -255,9 +267,20 @@ public class Player : MonoBehaviour {
 			Vector3 outVec = tautPos - pivotPos;
 			drawPoints[i] = tautPos + slack * propTaut * outVec;
 		}
-		for (int i = 0; i < numPoints-1; ++i){
-			Debug.DrawLine(drawPoints[i], drawPoints[i+1], Color.cyan);
+		
+		if (jibLine == null){
+			jibLine = new VectorLine("Cursor", drawPoints, null, 2.0f, LineType.Continuous);
+			
 		}
+		else{
+			for (int i = 0; i < drawPoints.Count(); ++i){
+				jibLine.points3[i] = drawPoints[i];
+			}
+			
+		}
+		jibLine.Draw3D ();
+
+
 				
 	}
 	
@@ -275,15 +298,13 @@ public class Player : MonoBehaviour {
 			jibAngle = CalcOptimalJib();
 		}
 		
+		if (!enableAI && jibAngle < 0.1f){
+			Debug.Log("jibAngle = " + jibAngle + "sail angle = " + sailAngle);
+		}
 		sailAngle = ConvertJibToSailAngle(jibAngle);
 		
-		
-		
 
-		                 
-		DrawJibRope(Mathf.Abs (sailAngle), jibAngle);
 		
-	
 		sailGO.transform.localRotation = Quaternion.Euler(0, 0, sailAngle);
 			
 		
@@ -387,17 +408,32 @@ public class Player : MonoBehaviour {
 	}
 	
 	float ConvertJibToSailAngle(float jibAngle){
-		// figure out which way the wind is blowing the sale
-		Vector3 saleNormal = sailGO.transform.rotation * new Vector3(1, 0, 0);
+		
+		// Work out the maximum/minimum angle the wind would be blowing it
+		Vector3 sailNormal = sailGO.transform.rotation * new Vector3(1, 0, 0);
 		Vector3 relWindVel = Environment.singleton.windVel - currentVel;
 		Vector3 windForceLoc = (relWindVel * sailStrength).normalized; 
-		float dotResult = Vector3.Dot (saleNormal, windForceLoc);
-		
+		float dotResult = Vector3.Dot (sailNormal, windForceLoc);
 		// Clamp to -1, +1
 		dotResult = Mathf.Min (1, Mathf.Max (-1, dotResult));
 		float maxAngle = sailAngle - Mathf.Rad2Deg * Mathf.Asin(dotResult);
+		
+		
+		Vector3 boatDir = bodyGO.transform.rotation * new Vector3(0, 1, 0);
+		Vector3 sailNormalDir = sailNormal + boatDir * 0.0001f;;
+		float dotResultDir = Vector3.Dot (sailNormalDir, windForceLoc);
+//		
+//		// figure out which way the wind is blowing accros the boat
+//		Vector3 boatSideDir = bodyGO.transform.rotation * new Vector3(1, 0, 0);
+//		float boatDot = Vector3.Dot(boatSideDir, relWindVel);
+//		
+//		float boatCross = Vector3.Cross(boatDir, relWindVel).z;
+		
+		//Debug.Log ("boatDot, boatCross = " + boatDot + ", " + boatCross);
+		
+		
 		//			Debug.Log (jibAngle);
-		if (dotResult > 0){
+		if (dotResultDir > 0){
 			return Mathf.Max (-jibAngle, maxAngle);
 		}
 		else{
