@@ -12,6 +12,9 @@ public class UIGraph : MonoBehaviour {
 	public Color borderCol;
 	public Color cursorCol;
 	
+	int numCirclePoints = 20;
+	float circleSizeProp = 0.02f;
+	
 	float xAxisMin = -50;
 	float xAxisMax = 50;
 	float yAxisMin = -2;
@@ -273,16 +276,30 @@ public class UIGraph : MonoBehaviour {
 			Vector2 vCursorPos = vCursors[i];
 			Vector2 axisPos = TransformGraphToGraphArea(new Vector2(vCursorPos.x, 0));
 			Vector2 cursorPos = TransformGraphToGraphArea(vCursorPos);
+
+			Vector2[] points = new Vector2[2 + 2 * numCirclePoints];
+			points[0] = axisPos;
+			points[1] = cursorPos;
+			
+			for (int j = 0; j < numCirclePoints; ++j){
+				float angleRadFrom = 2 * Mathf.PI * j / (numCirclePoints -1);
+				float angleRadTo = 2 * Mathf.PI * (j+1) / (numCirclePoints -1);
+				float radius = circleSizeProp * borderRectHeight;
+				points[2+ 2*j] = cursorPos + radius * (new Vector2(Mathf.Sin(angleRadFrom), Mathf.Cos(angleRadFrom)));
+				points[2+ 2*j+1] = cursorPos + radius * (new Vector2(Mathf.Sin(angleRadTo), Mathf.Cos(angleRadTo)));
+				
+			}
+
+			
 			if (cursorLines[i] == null){
-				Vector2[] points = new Vector2[2];
-				points[0] = axisPos;
-				points[1] = cursorPos;
 				cursorLines[i] = new VectorLine("Cursor", points, cursorMaterial, 2.0f, LineType.Discrete);
 			}
 			else{
-				cursorLines[i].points2[0]= axisPos;
-				cursorLines[i].points2[1]= cursorPos;
+				for (int j = 0; j < points.Count (); ++j){
+					cursorLines[i].points2[j]= points[j];
+				}
 			}
+			cursorLines[i].Draw ();
 			
 		}
 	}

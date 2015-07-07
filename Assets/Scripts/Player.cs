@@ -31,7 +31,7 @@ public class Player : MonoBehaviour {
 	float boatAngleVel = 0;
 	Vector3 currentVel = Vector3.zero;
 	
-//	int fwCursorID = -1;
+	int fwCursorID = -1;
 	int sailCursorID = -1;
 	float jibAngle = 0;
 	
@@ -47,6 +47,7 @@ public class Player : MonoBehaviour {
 		sailForceGraphGO = hud.transform.FindChild("Graphs").FindChild ("SailForceGraph").gameObject;
 		
 		sailCursorID = sailForceGraphGO.GetComponent<UIGraph>().AddVCursor();
+		fwCursorID = fwForceGraphGO.GetComponent<UIGraph>().AddVCursor();
 		
 	}
 	
@@ -260,33 +261,7 @@ public class Player : MonoBehaviour {
 				
 	}
 	
-	void DrawSailGraph(){
-		UIGraph graph = sailForceGraphGO.GetComponent<UIGraph>();
-		Vector2[] points = new Vector2[180];
-		
-		Vector3 boatDir = bodyGO.transform.rotation * new Vector3(0, -1, 0);
-		
-		for (int i = 0; i < 180; i++){
-			float testJibAngle = (float)i;
-			
-			float testSailAngle = testJibAngle;
-			Vector3 sailForce;
-			Vector3 fwForce;
-			Vector3 windForce;
-			float useSailAngle = sailAngleGlob - sailAngle + testSailAngle;
-			
-			Quaternion sailRot = Quaternion.Euler(0, 0, useSailAngle);
-			Vector3 saleNormal = sailRot * new Vector3(1, 0, 0);
-			
-			CalcVectors(useSailAngle, currentVel, boatDir, out windForce, out sailForce, out fwForce);
-//			points[i] = Vector3.Dot(fwForce, boatDir);;
-			points[i] = new Vector2((float)(i-90), Vector3.Dot(sailForce, saleNormal));
-			
-		}
-		graph.SetAxesRanges(-90, 90, -8, 8);
-		graph.UploadData(points);
 
-	}
 	
 	// Update is called once per frame
 	void FixedUpdate () {
@@ -317,7 +292,12 @@ public class Player : MonoBehaviour {
 		Vector3 windForce;
 		CalcVectors(sailAngleGlob, currentVel, boatDir, out windForce, out sailForce, out fwForce);
 		
-		sailForceGraphGO.GetComponent<UIGraph>().SetVCursor(sailCursorID, new Vector2(sailAngle, sailForce.magnitude));
+		
+		Quaternion sailRot = Quaternion.Euler(0, 0, sailAngleGlob);
+		Vector3 saleNormal = sailRot * new Vector3(1, 0, 0);
+		
+		sailForceGraphGO.GetComponent<UIGraph>().SetVCursor(sailCursorID, new Vector2(sailAngle, Vector3.Dot (saleNormal, sailForce)));
+		fwForceGraphGO.GetComponent<UIGraph>().SetVCursor(fwCursorID, new Vector2(sailAngle, Vector3.Dot (fwForce, boatDir)));
 		
 		
 		
@@ -343,6 +323,40 @@ public class Player : MonoBehaviour {
 		}
 		
 		DrawSailGraph();
+		
+	}
+	
+	void DrawSailGraph(){
+		UIGraph sailGraph = sailForceGraphGO.GetComponent<UIGraph>();
+		UIGraph fwGraph = fwForceGraphGO.GetComponent<UIGraph>();
+		
+		Vector2[] sailPoints = new Vector2[180];
+		Vector2[] fwPoints = new Vector2[180];
+		
+		Vector3 boatDir = bodyGO.transform.rotation * new Vector3(0, -1, 0);
+		
+		for (int i = -90; i < 90; i++){
+			float testJibAngle = (float)i;
+			
+			float testSailAngle = testJibAngle;
+			Vector3 sailForce;
+			Vector3 fwForce;
+			Vector3 windForce;
+			float useSailAngle = sailAngleGlob - sailAngle + testSailAngle;
+			
+			Quaternion sailRot = Quaternion.Euler(0, 0, useSailAngle);
+			Vector3 saleNormal = sailRot * new Vector3(1, 0, 0);
+			
+			CalcVectors(useSailAngle, currentVel, boatDir, out windForce, out sailForce, out fwForce);
+			//			points[i] = Vector3.Dot(fwForce, boatDir);;
+			sailPoints[i+90] = new Vector2(testSailAngle, Vector3.Dot(sailForce, saleNormal));
+			fwPoints[i+90] = new Vector2(testSailAngle, Vector3.Dot(fwForce, boatDir));
+			
+		}
+		sailGraph.SetAxesRanges(-90, 90, -8, 8);
+		sailGraph.UploadData(sailPoints);
+		fwGraph.SetAxesRanges(-90, 90, -8, 8);
+		fwGraph.UploadData(fwPoints);
 		
 	}
 	
