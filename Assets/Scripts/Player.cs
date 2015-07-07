@@ -17,9 +17,17 @@ public class Player : MonoBehaviour {
 	public bool enableAI = false;
 	public bool enableOptimalJib = false;
 	public float aiLookAhead = 2;
+	public Vector3 boatDir;
+	
+	public Vector3 sternPos;
+	public Vector3 sailTipPos;
+	public Vector3 pivotPos;
+	
 	
 	GameObject sailForceGraphGO;
 	GameObject fwForceGraphGO;
+	GameObject velVecGraphGO;
+
 	
 	VectorLine jibLine;
 	Material jibMaterial;
@@ -32,17 +40,22 @@ public class Player : MonoBehaviour {
 	
 	 bool hasTriggerChanged = false;
 	
-	float boatAngle = 180;
+	public float boatAngle = 180;
 	float boatAngleVel = 0;
-	Vector3 currentVel = Vector3.zero;
+	public  Vector3 currentVel = Vector3.zero;
 	
 	int fwCursorID = -1;
 	int sailCursorID = -1;
+	
+	int velWindID = -1;
+	int velBoatID = -1;
+	int velRelWindID;
+	
 	float jibAngle = 0;
 	
 	
 	
-	float sailAngle = 0;
+	public float sailAngle = 0;
 	float sailAngleGlob = 0;
 	
 	// Use this for initialization
@@ -50,12 +63,15 @@ public class Player : MonoBehaviour {
 //		fwCursorID = fwForceGraphGO.GetComponent<UIGraph>().AddVCursor();
 		fwForceGraphGO = hud.transform.FindChild("Graphs").FindChild ("FwForceGraph").gameObject;
 		sailForceGraphGO = hud.transform.FindChild("Graphs").FindChild ("SailForceGraph").gameObject;
+		velVecGraphGO = hud.transform.FindChild("Graphs").FindChild("VelocityVectorGraph").gameObject;
 		
 		sailCursorID = sailForceGraphGO.GetComponent<UIGraph>().AddVCursor();
 		fwCursorID = fwForceGraphGO.GetComponent<UIGraph>().AddVCursor();
 		
 		jibMaterial = Material.Instantiate(UI.singleton.vectrosityMaterialPrefab);
 		jibMaterial.color = Color.white;
+		
+		SetupVelGraph();
 		
 	}
 	
@@ -141,6 +157,7 @@ public class Player : MonoBehaviour {
 		wakeParticleSystem.GetComponent<ParticleSystem>().startLifetime = 2f * wakeStrength;
 		
 		DrawJibRope(Mathf.Abs (sailAngle), jibAngle);
+		DrawVelGraph();
 		
 
 	}
@@ -251,9 +268,9 @@ public class Player : MonoBehaviour {
 //	}
 //	
 	void DrawJibRope(float sailAngle, float jibAngle){
-		Vector3 sternPos = bodyGO.transform.TransformPoint(new Vector3(0, 0.5f, 0));
-		Vector3 sailTipPos = sailGO.transform.TransformPoint(new Vector3(0, 0.8f, 0));
-		Vector3 pivotPos = sailGO.transform.TransformPoint(new Vector3(0, 0f, 0));
+		sternPos = bodyGO.transform.TransformPoint(new Vector3(0, 0.5f, 0));
+		sailTipPos = sailGO.transform.TransformPoint(new Vector3(0, 0.8f, 0));
+		pivotPos = sailGO.transform.TransformPoint(new Vector3(0, 0f, 0));
 		
 		float slack = 0.002f * (jibAngle - sailAngle);
 		Vector3 fwVec = sternPos - sailTipPos;
@@ -289,18 +306,14 @@ public class Player : MonoBehaviour {
 	// Update is called once per frame
 	void FixedUpdate () {
 		
-	
+		currentVel = GetComponent<Rigidbody2D>().velocity;
 		// calc current Vel;
-		Vector3 boatDir = bodyGO.transform.rotation * new Vector3(0, -1, 0);
-		currentVel = boatDir * Vector3.Dot(boatDir, currentVel);
+		boatDir = bodyGO.transform.rotation * new Vector3(0, -1, 0);
 		
 		if (enableOptimalJib){
 			jibAngle = CalcOptimalJib();
 		}
 		
-		if (!enableAI && jibAngle < 0.1f){
-			Debug.Log("jibAngle = " + jibAngle + "sail angle = " + sailAngle);
-		}
 		sailAngle = ConvertJibToSailAngle(jibAngle);
 		
 
@@ -328,13 +341,9 @@ public class Player : MonoBehaviour {
 		
 		// Calc accn
 		
-		Vector3 accn = (boatForce + fwForce) * mass;
 		
-		
-		Vector3 nextVel = currentVel + accn * Time.fixedDeltaTime;
 		GetComponent<Rigidbody2D>().AddForce(boatForce + fwForce);
 
-		currentVel = nextVel * (1-0.3f * Time.fixedDeltaTime);
 		
 		if (!GameMode.singleton.IsRacing()){
 			if (GameMode.singleton.mode != GameMode.Mode.kRaceComplete){
@@ -344,6 +353,34 @@ public class Player : MonoBehaviour {
 		}
 		
 		DrawSailGraph();
+		
+	}
+	
+	
+	void SetupVelGraph(){
+		velWindID = velVecGraphGO.GetComponent<UIVectorGraph>().AddVector(Color.cyan);
+		velBoatID = velVecGraphGO.GetComponent<UIVectorGraph>().AddVector(Color.cyan);
+		velRelWindID = velVecGraphGO.GetComponent<UIVectorGraph>().AddVector(Color.cyan);
+	}
+	
+	Vector2 TransformVectorToBoatSpace(Vector2 vec){
+		Vector2 retVec = bodyGO.transform.InverseTransformVector(vec);
+		retVec = Quaternion.Euler(0, 0, 180) * retVec;
+		return retVec;
+	}
+	
+	void DrawVelGraph(){
+		velVecGraphGO.GetComponent<UIVectorGraph>().SetAxesRanges(-5, 5, -5, 5);
+		
+		Vector2 winVelLoc = TransformVectorToBoatSpace(new Vector2(Environment.singleton.windVel.x, Environment.singleton.windVel.y));
+		Vector2 boatVelLoc = TransformVectorToBoatSpace(GetComponent<Rigidbody2D>().velocity);
+		Vector2 relWindVelLocStart = boatVelLoc;
+		Vector2 relWindVelLocEnd = winVelLoc;
+		
+		velVecGraphGO.GetComponent<UIVectorGraph>().SetVector(velWindID, Vector2.zero, winVelLoc);
+		velVecGraphGO.GetComponent<UIVectorGraph>().SetVector(velBoatID, Vector2.zero, boatVelLoc);
+		velVecGraphGO.GetComponent<UIVectorGraph>().SetVector(velRelWindID, relWindVelLocStart, relWindVelLocEnd);
+		//velVecGraphGO
 		
 	}
 	
@@ -420,7 +457,7 @@ public class Player : MonoBehaviour {
 		
 		
 		Vector3 boatDir = bodyGO.transform.rotation * new Vector3(0, 1, 0);
-		Vector3 sailNormalDir = sailNormal + boatDir * 0.0001f;;
+		Vector3 sailNormalDir = sailNormal + boatDir * 0.0001f;
 		float dotResultDir = Vector3.Dot (sailNormalDir, windForceLoc);
 //		
 //		// figure out which way the wind is blowing accros the boat
