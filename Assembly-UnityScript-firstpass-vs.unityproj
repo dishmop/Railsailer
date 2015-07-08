@@ -49,7 +49,6 @@
      <Compile Include="Assets\Plugins\VectrosityDemos\Image Effects (Pro Only)\PostEffectsBase.js" />
      <Compile Include="Assets\Plugins\VectrosityDemos\Image Effects (Pro Only)\Quads.js" />
      <None Include="Assets\Plugins\VectrosityDemos\Image Effects (Pro Only)\_Sources\Shaders\GlowConeTap.shader" />
-     <None Include="Assets\Vectrosity 4\Vectrosity 4 Documentation\Vectrosity 4 Upgrade Guide.txt" />
      <None Include="Assets\Plugins\VectrosityDemos\Image Effects (Pro Only)\_Sources\Shaders\GlowCompose.shader" />
      <None Include="Assets\Standard Assets\Environment\Water\Water4\Shaders\FXWater4Simple.shader" />
      <None Include="Assets\Plugins\VectrosityDemos\Image Effects (Pro Only)\_Sources\Shaders\GlowEffectDownsample.shader" />
@@ -57,7 +56,6 @@
      <None Include="Assets\Standard Assets\CrossPlatformInput\CrossPlatformInputGuidelines.txt" />
      <None Include="Assets\Shaders\MaskedTexture.shader" />
      <None Include="Assets\Standard Assets\Environment\Water\Water\Shaders\FXWaterPro.shader" />
-     <None Include="Assets\Vectrosity 4\Vectrosity 4 Documentation\Vectrosity changelog.txt" />
      <None Include="Assets\Standard Assets\Environment\Water\Water4\Shaders\WaterInclude.cginc" />
      <None Include="Assets\Standard Assets\Environment\Water\Water4\Shaders\FXWater4Advanced.shader" />
      <None Include="Assets\Vectrosity\Demos\Shaders\DepthMask.shader" />

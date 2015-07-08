@@ -41,7 +41,7 @@ public class Environment : MonoBehaviour {
 		Vector3 basePos = playerGO.transform.position;
 
 		basePos = Vector3.zero;
-		basePos.z = -1f;
+		basePos.z = -1.5f;
 		particlesGO.transform.position = basePos- windDir * Mathf.Lerp (5, diagDist, distDiagProp);
 		
  		distDiagProp = Mathf.Min (distDiagProp + 0.001f, 1);

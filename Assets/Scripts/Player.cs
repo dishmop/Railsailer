@@ -18,10 +18,20 @@ public class Player : MonoBehaviour {
 	public bool enableOptimalJib = false;
 	public float aiLookAhead = 2;
 	public Vector3 boatDir;
+	public Vector3 sailForceGlob;
+	public Vector3 fwForceGlob;
+	public Material jibLineMaterial;
 	
 	public Vector3 sternPos;
 	public Vector3 sailTipPos;
 	public Vector3 pivotPos;
+	
+	public Vector2[] sailPoints;
+	public Vector2[] fwPoints;
+	public int numGraphPoints = 360;
+	
+	float removeSliderTime = -100;
+	float removeSliderDuration = 0.5f;
 	
 	
 	GameObject sailForceGraphGO;
@@ -73,9 +83,14 @@ public class Player : MonoBehaviour {
 		
 		SetupVelGraph();
 		
+		sailPoints = new Vector2[numGraphPoints];
+		fwPoints = new Vector2[numGraphPoints];
+		
+		
 	}
 	
 	void Update(){
+		
 		hud.transform.FindChild("NameBox").GetComponent<Text>().text = playerName;
 		if (GameMode.singleton.mode != GameMode.Mode.kRaceComplete){
 			hud.transform.FindChild("LapInfo").GetComponent<Text>().text = "Lap " + (numLapsComplete + 1) +  " of " + GameConfig.singleton.totalNumLaps;
@@ -130,7 +145,7 @@ public class Player : MonoBehaviour {
 			
 		}
 		float speed = Vector3.Dot(boatDir, GetComponent<Rigidbody2D>().velocity);
-		if (speed >= 0f){
+		if (speed >= -0.25f){
 			speed += 0.5f;
 		}
 		else{
@@ -286,7 +301,7 @@ public class Player : MonoBehaviour {
 		}
 		
 		if (jibLine == null){
-			jibLine = new VectorLine("Cursor", drawPoints, null, 2.0f, LineType.Continuous);
+			jibLine = new VectorLine("Cursor", drawPoints, jibLineMaterial, 2.0f, LineType.Continuous);
 			
 		}
 		else{
@@ -305,6 +320,10 @@ public class Player : MonoBehaviour {
 	
 	// Update is called once per frame
 	void FixedUpdate () {
+
+		// If we've been bumped, then remove the slider	
+		GetComponent<SliderJoint2D>().enabled = (Time.fixedTime > removeSliderTime + removeSliderDuration);
+		
 		
 		currentVel = GetComponent<Rigidbody2D>().velocity;
 		// calc current Vel;
@@ -320,18 +339,15 @@ public class Player : MonoBehaviour {
 		
 		sailGO.transform.localRotation = Quaternion.Euler(0, 0, sailAngle);
 			
-		
-		Vector3 sailForce;
-		Vector3 fwForce;
 		Vector3 windForce;
-		CalcVectors(sailAngleGlob, currentVel, boatDir, out windForce, out sailForce, out fwForce);
+		CalcVectors(sailAngleGlob, currentVel, boatDir, out windForce, out sailForceGlob, out fwForceGlob);
 		
 		
 		Quaternion sailRot = Quaternion.Euler(0, 0, sailAngleGlob);
 		Vector3 saleNormal = sailRot * new Vector3(1, 0, 0);
 		
-		sailForceGraphGO.GetComponent<UIGraph>().SetVCursor(sailCursorID, new Vector2(sailAngle, Vector3.Dot (saleNormal, sailForce)));
-		fwForceGraphGO.GetComponent<UIGraph>().SetVCursor(fwCursorID, new Vector2(sailAngle, Vector3.Dot (fwForce, boatDir)));
+		sailForceGraphGO.GetComponent<UIGraph>().SetVCursor(sailCursorID, new Vector2(sailAngle, Vector3.Dot (saleNormal, sailForceGlob)));
+		fwForceGraphGO.GetComponent<UIGraph>().SetVCursor(fwCursorID, new Vector2(sailAngle, Vector3.Dot (fwForceGlob, boatDir)));
 		
 		
 		
@@ -342,7 +358,7 @@ public class Player : MonoBehaviour {
 		// Calc accn
 		
 		
-		GetComponent<Rigidbody2D>().AddForce(boatForce + fwForce);
+		GetComponent<Rigidbody2D>().AddForce(boatForce + fwForceGlob);
 
 		
 		if (!GameMode.singleton.IsRacing()){
@@ -388,12 +404,10 @@ public class Player : MonoBehaviour {
 		UIGraph sailGraph = sailForceGraphGO.GetComponent<UIGraph>();
 		UIGraph fwGraph = fwForceGraphGO.GetComponent<UIGraph>();
 		
-		Vector2[] sailPoints = new Vector2[180];
-		Vector2[] fwPoints = new Vector2[180];
 		
 		Vector3 boatDir = bodyGO.transform.rotation * new Vector3(0, -1, 0);
 		
-		for (int i = -90; i < 90; i++){
+		for (int i = -180; i < 180; i++){
 			float testJibAngle = (float)i;
 			
 			float testSailAngle = testJibAngle;
@@ -407,14 +421,14 @@ public class Player : MonoBehaviour {
 			
 			CalcVectors(useSailAngle, currentVel, boatDir, out windForce, out sailForce, out fwForce);
 			//			points[i] = Vector3.Dot(fwForce, boatDir);;
-			sailPoints[i+90] = new Vector2(testSailAngle, Vector3.Dot(sailForce, saleNormal));
-			fwPoints[i+90] = new Vector2(testSailAngle, Vector3.Dot(fwForce, boatDir));
+			sailPoints[i+180] = new Vector2(testSailAngle, Vector3.Dot(sailForce, saleNormal));
+			fwPoints[i+180] = new Vector2(testSailAngle, Vector3.Dot(fwForce, boatDir));
 			
 		}
-		sailGraph.SetAxesRanges(-90, 90, -8, 8);
-		sailGraph.UploadData(sailPoints);
-		fwGraph.SetAxesRanges(-90, 90, -8, 8);
-		fwGraph.UploadData(fwPoints);
+//		sailGraph.SetAxesRanges(-90, 90, -8, 8);
+//		sailGraph.UploadData(sailPoints);
+//		fwGraph.SetAxesRanges(-90, 90, -8, 8);
+//		fwGraph.UploadData(fwPoints);
 		
 	}
 	
@@ -586,6 +600,23 @@ public class Player : MonoBehaviour {
 		}
 	}
 	
+	
+	void OnCollisionAction(){
+		removeSliderTime = Time.fixedTime;
+		
+		GetComponent<SliderJoint2D>().enabled = false;
+		GetComponent<Rigidbody2D>().velocity = currentVel;
+	}
+	
+	void OnCollisionEnter2D(Collision2D collision){
+	
+		OnCollisionAction();
+	}
+	
+	void OnCollisionStay2D(Collision2D collision){
+		
+		//OnCollisionAction();
+	}
 	
 	
 	void OnTriggerEnter2D(Collider2D collider){

@@ -5,6 +5,14 @@ using Vectrosity;
 public class UI : MonoBehaviour {
 	public static UI singleton = null;
 	public bool mouseIsInUI;
+	public Material mainCircleMaterial;
+	public Material smallDottedLineMaterial;
+	public Material gradiatedLineMaterial;
+	public Material middleGradiatedMaterial;
+	public Material arrowMaterial;
+	public Texture2D arrowFrontTex;
+	public Texture2D arrowBackTex;
+	public Texture2D gradiatedEndTex;
 	
 	
 	public Material vectrosityMaterialPrefab;
@@ -15,7 +23,6 @@ public class UI : MonoBehaviour {
 	void Start () {
 	
 
-		
 		
 	}
 	
@@ -41,6 +48,11 @@ public class UI : MonoBehaviour {
 		VectorLine tempLine = VectorLine.SetLine(Color.green, Vector2.zero,Vector2.zero);
 		vectrosityMaterialPrefab = tempLine.material;
 		VectorLine.Destroy(ref tempLine);
+		
+		// Setup arrow ends
+		VectorLine.SetEndCap ("rounded_arrow", EndCap.Both, arrowMaterial, arrowFrontTex, arrowBackTex);
+		VectorLine.SetEndCap ("gradiated_end", EndCap.Front, gradiatedLineMaterial, gradiatedEndTex);
+		
 	}
 	
 	
