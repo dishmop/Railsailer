@@ -19,6 +19,7 @@ public class PlayerOverlay : MonoBehaviour {
 	public float transparencyMainCircle = 1f;
 	public float transparencyDotted = 1f;
 	public float transparencyFwForce = 1f;
+	public float globalTransparency = 0f;
 		
 	Color transparencyColArrows;
 	Color transparencyColProjections;
@@ -116,12 +117,7 @@ public class PlayerOverlay : MonoBehaviour {
 		windToSailRA = new VectorLine("windToSailRA", dummyPoints3, UI.singleton.arrowMaterial, 5, LineType.Continuous, Joins.Weld);
 		
 		sailToFwRA = new VectorLine("windToSailRA", dummyPoints3, UI.singleton.arrowMaterial, 5, LineType.Continuous, Joins.Weld);
-		
-		transparencyColArrows = new Color(1, 1, 1, transparencyArrows);
-		transparencyColProjections = new Color(1, 1, 1, transparencyProjections);
-		transparencyColMainCircle = new Color(1, 1, 1, transparencyMainCircle);
-		transparencyColDotted = new Color(1, 1, 1, transparencyDotted);
-		transparencyColFwForce =new Color(1, 1, 1, transparencyFwForce);
+
 		
 		// Cost function
 //		Vector2[] dummyPoints = new Vector2[player.numGraphPoints];
@@ -131,6 +127,20 @@ public class PlayerOverlay : MonoBehaviour {
 	
 	
 	void DrawAll(){
+	
+		if (player.IsEnableAI() || GameMode.singleton.mode == GameMode.Mode.kSignalOff){
+			globalTransparency = 0;
+		}
+		else{
+			globalTransparency = 1;
+			
+		}
+		
+		transparencyColArrows = new Color(1, 1, 1, transparencyArrows * globalTransparency);
+		transparencyColProjections = new Color(1, 1, 1, transparencyProjections * globalTransparency);
+		transparencyColMainCircle = new Color(1, 1, 1, transparencyMainCircle * globalTransparency);
+		transparencyColDotted = new Color(1, 1, 1, transparencyDotted * globalTransparency);
+		transparencyColFwForce =new Color(1, 1, 1, transparencyFwForce * globalTransparency);
 
 		// Main circle
 		Camera thisCam = cameraGO.GetComponent<Camera>();

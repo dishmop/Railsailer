@@ -14,8 +14,6 @@ public class Player : MonoBehaviour {
 	public string playerName;
 	public GameObject hud;
 	public GameObject wakeParticleSystem;
-	public bool enableAI = false;
-	public bool enableOptimalJib = false;
 	public float aiLookAhead = 2;
 	public Vector3 boatDir;
 	public Vector3 sailForceGlob;
@@ -30,8 +28,21 @@ public class Player : MonoBehaviour {
 	public Vector2[] fwPoints;
 	public int numGraphPoints = 360;
 	
+	public enum InputMethod{
+		kJoystick,
+		kKeyboardAndMouse,
+		kAI
+	}
+	
+	public InputMethod	inputMethod = InputMethod.kJoystick;
+	
 	float removeSliderTime = -100;
 	float removeSliderDuration = 0.5f;
+	
+	// Steering control vals
+	float lastJoystickVal = 0;
+	float power = 0;
+	
 	
 	
 	GameObject sailForceGraphGO;
@@ -68,6 +79,10 @@ public class Player : MonoBehaviour {
 	public float sailAngle = 0;
 	float sailAngleGlob = 0;
 	
+	public bool IsEnableAI(){
+		return inputMethod == InputMethod.kAI;
+	}
+	
 	// Use this for initialization
 	void Start () {
 //		fwCursorID = fwForceGraphGO.GetComponent<UIGraph>().AddVCursor();
@@ -85,6 +100,44 @@ public class Player : MonoBehaviour {
 		
 		sailPoints = new Vector2[numGraphPoints];
 		fwPoints = new Vector2[numGraphPoints];
+		
+		// If player 1
+		string key = "";
+		if (name == "Player_1"){
+			key = "Player1";
+		}
+		else if (name == "Player_2"){
+			key = "Player2";
+		}
+		
+		if (key != ""){
+			string inputMethodString = PlayerPrefs.GetString(key);
+			switch (inputMethodString){
+				case "Joystick":{
+					inputMethod = InputMethod.kJoystick;
+					break;
+				}
+				case "Keboard":{
+					inputMethod = InputMethod.kKeyboardAndMouse;
+					break;
+				}
+				case "AI":{
+					inputMethod = InputMethod.kAI;
+					break;
+				}
+			}
+		}
+
+		
+		
+		if (inputMethod == InputMethod.kAI){
+			if (name == "Player_1"){
+				playerName = "Computer 1";
+			}
+			else if (name == "Player_2"){
+				playerName = "Computer 2";
+			}
+		}
 		
 		
 	}
@@ -111,7 +164,7 @@ public class Player : MonoBehaviour {
 		}
 		
 		// SAIL
-		if (!enableAI){
+		if (!IsEnableAI()){
 			float triggerValue = Input.GetAxis("RightTrigger" + joystickId);
 			if (triggerValue != 0){
 				hasTriggerChanged = true;
@@ -129,9 +182,37 @@ public class Player : MonoBehaviour {
 		
 		
 		// BOAT
-		float power = -1;
-		if (!enableAI){
-			power = -100*Input.GetAxis("Horizontal" + joystickId);
+		if (!IsEnableAI()){
+			if (GameMode.singleton.IsRacing()){
+				if (inputMethod == InputMethod.kJoystick){
+					float joystickVal = Input.GetAxis("Horizontal" + joystickId);
+					if (joystickVal != lastJoystickVal){
+						lastJoystickVal = joystickVal;
+						power = -100 * joystickVal;
+					}
+				}
+				else if (inputMethod == InputMethod.kKeyboardAndMouse){
+					bool left = Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow);
+					bool right = Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow);
+					power += left ? 10 : 0;
+					power -= right ? 10 : 0;
+					
+					if (!left && !right && Mathf.Abs (power) > 0.1f){
+						if (power > 0){
+							power -= 10;
+						}
+						else{
+							power += 10;
+						}
+					}
+					
+					power = Mathf.Max (-100, Mathf.Min (100, power));
+				}
+			
+				
+
+				//Debug.Log ("Power = " + power);
+			}
 		}
 		else{		
 			// Find a point on the rail ahead of where we are and draw it
@@ -329,7 +410,7 @@ public class Player : MonoBehaviour {
 		// calc current Vel;
 		boatDir = bodyGO.transform.rotation * new Vector3(0, -1, 0);
 		
-		if (enableOptimalJib){
+		if (IsEnableAI()){
 			jibAngle = CalcOptimalJib();
 		}
 		

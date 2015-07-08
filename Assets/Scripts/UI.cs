@@ -16,6 +16,9 @@ public class UI : MonoBehaviour {
 	
 	
 	public Material vectrosityMaterialPrefab;
+
+	
+	static bool hasSetupVectorLineCaps = false;
 	
 	
 	
@@ -50,8 +53,11 @@ public class UI : MonoBehaviour {
 		VectorLine.Destroy(ref tempLine);
 		
 		// Setup arrow ends
-		VectorLine.SetEndCap ("rounded_arrow", EndCap.Both, arrowMaterial, arrowFrontTex, arrowBackTex);
-		VectorLine.SetEndCap ("gradiated_end", EndCap.Front, gradiatedLineMaterial, gradiatedEndTex);
+		if (!hasSetupVectorLineCaps){
+			hasSetupVectorLineCaps = true;
+			VectorLine.SetEndCap ("rounded_arrow", EndCap.Both, arrowMaterial, arrowFrontTex, arrowBackTex);
+			VectorLine.SetEndCap ("gradiated_end", EndCap.Front, gradiatedLineMaterial, gradiatedEndTex);
+		}
 		
 	}
 	

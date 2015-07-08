@@ -18,6 +18,7 @@ public class GameMode : MonoBehaviour {
 	public GameObject gameCompletePanel;
 	
 	public GameObject winningPlayer;
+	public string mainMenuLevelName;
 	
 	float countStepDuration = 2;
 	
@@ -33,9 +34,15 @@ public class GameMode : MonoBehaviour {
 	}
 	
 	public void TriggerWinner(GameObject winner){
-		winningPlayer = winner;
-		mode = Mode.kRaceComplete;
+		if (winningPlayer == null){
+			winningPlayer = winner;
+			mode = Mode.kRaceComplete;
+		}
 	
+	}
+	
+	public void ReturnToMainMenu(){
+		Application.LoadLevel (mainMenuLevelName);
 	}
 
 	// Use this for initialization
@@ -44,12 +51,16 @@ public class GameMode : MonoBehaviour {
 	
 	}
 	
+	void Update(){
+		Cursor.visible = (mode == Mode.kRaceComplete);
+	}
+	
 	// Update is called once per frame
 	void FixedUpdate () {
 	
 		if (mode == Mode.kRaceComplete){
 			gameCompletePanel.SetActive(true);
-			gameCompletePanel.transform.FindChild("Text").GetComponent<Text>().text = winningPlayer.name + " is the Winner!";
+			gameCompletePanel.transform.FindChild("Text").GetComponent<Text>().text = winningPlayer.GetComponent<Player>().playerName + " is the Winner!";
 			return;
 		}
 		gameCompletePanel.SetActive(false);
@@ -58,16 +69,16 @@ public class GameMode : MonoBehaviour {
 			countInTime = 0;
 		}
 		
-		if (Time.fixedTime < countInTime + countStepDuration){
+		if (Time.fixedTime < countInTime + countStepDuration*3){
 			mode = Mode.kSignalOff;
 		} 
-		else if (Time.fixedTime < countInTime + 2 * countStepDuration){
+		else if (Time.fixedTime < countInTime + 4 * countStepDuration){
 			mode = Mode.kSignalOn1;
 		}
-		else if (Time.fixedTime < countInTime + 3 * countStepDuration){
+		else if (Time.fixedTime < countInTime + 5 * countStepDuration){
 			mode = Mode.kSignalOn2;
 		}
-		else if (Time.fixedTime < countInTime + 4 * countStepDuration){
+		else if (Time.fixedTime < countInTime + 6 * countStepDuration){
 			mode = Mode.kSignalOn3;
 		}
 		else{
