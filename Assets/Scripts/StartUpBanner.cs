@@ -5,6 +5,7 @@ using UnityEngine.UI;
 public class StartUpBanner : MonoBehaviour {
 	float startTime;
 	
+	
 	// Use this for initialization
 	void Start () {
 		startTime = Time.time + 2f;
@@ -12,7 +13,10 @@ public class StartUpBanner : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-	
+		if (GameMode.singleton.mode != GameMode.Mode.kRaceComplete){
+			AudioListener.volume = 1-transform.GetComponent<Image>().color.a;
+		}
+		
 		if (Time.time > startTime){
 			Color thisCol = transform.GetComponent<Image>().color;
 			thisCol.a = Mathf.Max (0, thisCol.a - 0.01f);
@@ -21,7 +25,8 @@ public class StartUpBanner : MonoBehaviour {
 		if (Time.time > startTime + 2f){
 			gameObject.SetActive(false);
 		}
-	
+		
+			
 	}
 }
 

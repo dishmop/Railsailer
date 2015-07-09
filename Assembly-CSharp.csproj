@@ -58,6 +58,7 @@
     <Compile Include="Assets\Scripts\QuitOnEsc.cs" />
     <Compile Include="Assets\Scripts\RailMaker.cs" />
     <Compile Include="Assets\Scripts\Signals.cs" />
+    <Compile Include="Assets\Scripts\Snow.cs" />
     <Compile Include="Assets\Scripts\StartUpBanner.cs" />
     <Compile Include="Assets\Scripts\UI.cs" />
     <Compile Include="Assets\Scripts\UIGraph.cs" />

@@ -26,6 +26,10 @@ public class Player : MonoBehaviour {
 	public Vector2[] sailPoints;
 	public Vector2[] fwPoints;
 	public int numGraphPoints = 360;
+	public AudioSource wind;
+	public AudioSource waves;
+	public AudioSource crash;
+	
 	
 	public enum InputMethod{
 		kNone,	
@@ -76,6 +80,8 @@ public class Player : MonoBehaviour {
 	
 	float jibAngle = 0;
 	
+	int audioPlayCount = 10;
+	
 	
 	
 	public float sailAngle = 0;
@@ -87,6 +93,8 @@ public class Player : MonoBehaviour {
 	
 	// Use this for initialization
 	void Start () {
+
+
 //		fwCursorID = fwForceGraphGO.GetComponent<UIGraph>().AddVCursor();
 		fwForceGraphGO = hud.transform.FindChild("Graphs").FindChild ("FwForceGraph").gameObject;
 		sailForceGraphGO = hud.transform.FindChild("Graphs").FindChild ("SailForceGraph").gameObject;
@@ -147,6 +155,16 @@ public class Player : MonoBehaviour {
 	}
 	
 	void Update(){
+		if (audioPlayCount-- == 0){
+			if (wind != null){
+				wind.Play();
+				wind.volume = 0;
+			}
+			if (waves!= null){
+				waves.Play();
+				waves.volume = 0;
+			}
+		}
 		
 		hud.transform.FindChild("NameBox").GetComponent<Text>().text = playerName;
 		if (GameMode.singleton.mode != GameMode.Mode.kRaceComplete){
@@ -413,6 +431,29 @@ public class Player : MonoBehaviour {
 	
 	// Update is called once per frame
 	void FixedUpdate () {
+	
+
+		if (wind != null){
+			Vector3 relWindVel = Environment.singleton.windVel - currentVel;
+			float relWindSpeed = relWindVel.magnitude;
+			float windSpeedProp = 0.75f * relWindSpeed/Environment.singleton.windVel.magnitude;
+			wind.pitch = Mathf.Lerp (0.5f, 2.0f, windSpeedProp);
+			wind.volume = Mathf.Lerp (0.25f, 1f, windSpeedProp);
+			
+			// Direction
+			Vector3 relWindDir = relWindVel.normalized;
+			float crossRes = Vector3.Cross(boatDir, relWindDir).z;
+			wind.panStereo = 0.75f * crossRes;
+			
+		}
+		
+		if (waves != null){
+			float boatSpeed = currentVel.magnitude;
+			float boatSpeedPro = boatSpeed/Environment.singleton.windVel.magnitude;
+			waves.pitch = Mathf.Lerp (0.5f, 2.5f, boatSpeedPro);
+			waves.volume = Mathf.Lerp (0.0f, 0.75f, boatSpeedPro);
+			
+		}
 
 		// If we've been bumped, then remove the slider	
 		GetComponent<SliderJoint2D>().enabled = (Time.fixedTime > removeSliderTime + removeSliderDuration);
@@ -441,6 +482,9 @@ public class Player : MonoBehaviour {
 		
 		sailForceGraphGO.GetComponent<UIGraph>().SetVCursor(sailCursorID, new Vector2(sailAngle, Vector3.Dot (saleNormal, sailForceGlob)));
 		fwForceGraphGO.GetComponent<UIGraph>().SetVCursor(fwCursorID, new Vector2(sailAngle, Vector3.Dot (fwForceGlob, boatDir)));
+//		Debug.Log ("Vector3.Dot (fwForceGlob, boatDir) = " + Vector3.Dot (fwForceGlob, boatDir));
+		HandleSailSound();
+		
 		
 		
 		
@@ -500,6 +544,8 @@ public class Player : MonoBehaviour {
 		
 		Vector3 boatDir = bodyGO.transform.rotation * new Vector3(0, -1, 0);
 		
+		float maxfw = 0;
+		float minfw = 0;
 		for (int i = -180; i < 180; i++){
 			float testJibAngle = (float)i;
 			
@@ -516,8 +562,11 @@ public class Player : MonoBehaviour {
 			//			points[i] = Vector3.Dot(fwForce, boatDir);;
 			sailPoints[i+180] = new Vector2(testSailAngle, Vector3.Dot(sailForce, saleNormal));
 			fwPoints[i+180] = new Vector2(testSailAngle, Vector3.Dot(fwForce, boatDir));
+			maxfw = Mathf.Max(fwPoints[i+180].y);	
+			minfw = Mathf.Min (fwPoints[i+180].y);	
 			
 		}
+	//	Debug.Log ("maxfw  =" + maxfw + "minfw  =" + minfw);
 //		sailGraph.SetAxesRanges(-90, 90, -8, 8);
 //		sailGraph.UploadData(sailPoints);
 //		fwGraph.SetAxesRanges(-90, 90, -8, 8);
@@ -686,6 +735,46 @@ public class Player : MonoBehaviour {
 ////		
 //		
 //	}
+
+	void HandleSailSound(){
+		if (transform.FindChild("SailSound") == null) return;
+		
+		AudioLowPassFilter filter = transform.FindChild("SailSound").GetComponent<AudioLowPassFilter>();
+		
+		// Get the range of values for the fwForce
+		float minForce = 1000;
+		float maxForce = -10000;
+		for (int i = 0; i < fwPoints.Count (); ++i){
+			minForce = Mathf.Min (minForce, fwPoints[i].y);
+			maxForce = Mathf.Max (maxForce, fwPoints[i].y);
+		}
+		
+		minForce = Mathf.Max (0, minForce);
+		
+		// Get this force
+		Vector3 boatDir = bodyGO.transform.rotation * new Vector3(0, -1, 0);
+		float thisForce =  Vector3.Dot(fwForceGlob, boatDir);
+
+		
+		float propForce = 1 - (thisForce - minForce) / (maxForce - minForce);
+		
+		propForce = Mathf.Pow(propForce, 4);
+		propForce = 1- propForce;
+		//Debug.Log ("thisForce = " + thisForce);
+		
+		
+		filter.lowpassResonanceQ = Mathf.Lerp (1, 2.5f, propForce);
+		
+		
+		// Do the frequency
+		float propSail = sailForceGlob.magnitude/6f;
+		filter.cutoffFrequency = Mathf.Lerp (500, 1000, propSail);
+		transform.FindChild("SailSound").GetComponent<AudioSource>().volume = Mathf.Lerp (0.2f, 0.5f, propSail);
+		
+		//Debug.Log ("propSail = " + propSail);
+		
+		
+	}
 	
 	void OnTriggerStartLine(){
 		if (numLapsComplete == GameConfig.singleton.totalNumLaps){
@@ -702,6 +791,7 @@ public class Player : MonoBehaviour {
 	}
 	
 	void OnCollisionEnter2D(Collision2D collision){
+		if (crash != null && !crash.isPlaying) crash.Play ();
 	
 		OnCollisionAction();
 	}

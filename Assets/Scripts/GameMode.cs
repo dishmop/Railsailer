@@ -19,6 +19,8 @@ public class GameMode : MonoBehaviour {
 	
 	public GameObject winningPlayer;
 	public string mainMenuLevelName;
+	public AudioSource bell;
+	public AudioSource horn;
 	
 	float countStepDuration = 2;
 	
@@ -37,6 +39,7 @@ public class GameMode : MonoBehaviour {
 		if (winningPlayer == null){
 			winningPlayer = winner;
 			mode = Mode.kRaceComplete;
+			horn.Play ();
 		}
 	
 	}
@@ -62,6 +65,7 @@ public class GameMode : MonoBehaviour {
 		if (mode == Mode.kRaceComplete){
 			gameCompletePanel.SetActive(true);
 			gameCompletePanel.transform.FindChild("Text").GetComponent<Text>().text = winningPlayer.GetComponent<Player>().playerName + " is the Winner!";
+			AudioListener.volume = AudioListener.volume-0.0025f;
 			return;
 		}
 		gameCompletePanel.SetActive(false);
@@ -69,6 +73,8 @@ public class GameMode : MonoBehaviour {
 		if (mode == Mode.kInit){
 			countInTime = 0;
 		}
+		
+		Mode lastMode = mode;
 		
 		if (Time.fixedTime < countInTime + countStepDuration*3){
 			mode = Mode.kSignalOff;
@@ -84,6 +90,16 @@ public class GameMode : MonoBehaviour {
 		}
 		else{
 			mode = Mode.kRace;
+		}
+		
+		if (lastMode != mode && mode == Mode.kSignalOn1){
+			bell.Play();
+		}
+		if (lastMode != mode && mode == Mode.kSignalOn2){
+			bell.Play();
+		}
+		if (lastMode != mode && mode == Mode.kSignalOn3){
+			horn.Play();
 		}
 		
 	}
