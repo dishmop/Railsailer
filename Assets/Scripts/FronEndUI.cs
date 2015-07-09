@@ -3,6 +3,20 @@ using System.Collections;
 
 public class FronEndUI : MonoBehaviour {
 
+	public enum Mode{
+		kMainMenu,
+		kInstructions
+	}
+	public Mode mode = Mode.kMainMenu;
+	
+	public void GoToMainMenu(){
+		mode = Mode.kMainMenu;
+	}
+	
+	public void GoToInstructions(){
+		mode = Mode.kInstructions;
+	}
+	
 	public void StartGame(){
 		Application.LoadLevel("Level1");
 	}
@@ -38,6 +52,8 @@ public class FronEndUI : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-	
+		transform.FindChild("MainMenu").gameObject.SetActive(mode == Mode.kMainMenu);
+		transform.FindChild("Instructions").gameObject.SetActive(mode == Mode.kInstructions);
+		
 	}
 }

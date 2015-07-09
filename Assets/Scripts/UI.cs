@@ -21,6 +21,17 @@ public class UI : MonoBehaviour {
 	static bool hasSetupVectorLineCaps = false;
 	
 	
+	bool hasFirstJoystick = false;
+	
+	public string GetFreeJoystickId(){
+		if (!hasFirstJoystick){
+			hasFirstJoystick = true;
+			return "-J1";
+		}
+		else{
+			return "-J2";
+		}
+	}
 	
 	// Use this for initialization
 	void Start () {

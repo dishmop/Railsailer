@@ -53,6 +53,7 @@ public class GameMode : MonoBehaviour {
 	
 	void Update(){
 		Cursor.visible = (mode == Mode.kRaceComplete);
+		Cursor.lockState = (mode == Mode.kRaceComplete) ? CursorLockMode.None : CursorLockMode.Confined;
 	}
 	
 	// Update is called once per frame

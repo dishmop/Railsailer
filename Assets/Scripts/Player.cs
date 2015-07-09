@@ -10,7 +10,6 @@ public class Player : MonoBehaviour {
 	public float sailStrength = 1f;
 	public float boatWindStrength = 0.1f;
 	public float mass = 1;
-	public string joystickId = "-J1";
 	public string playerName;
 	public GameObject hud;
 	public GameObject wakeParticleSystem;
@@ -29,12 +28,15 @@ public class Player : MonoBehaviour {
 	public int numGraphPoints = 360;
 	
 	public enum InputMethod{
+		kNone,	
 		kJoystick,
 		kKeyboardAndMouse,
 		kAI
 	}
 	
 	public InputMethod	inputMethod = InputMethod.kJoystick;
+	
+	string joystickId;
 	
 	float removeSliderTime = -100;
 	float removeSliderDuration = 0.5f;
@@ -115,29 +117,31 @@ public class Player : MonoBehaviour {
 			switch (inputMethodString){
 				case "Joystick":{
 					inputMethod = InputMethod.kJoystick;
+					joystickId = UI.singleton.GetFreeJoystickId();
 					break;
 				}
-				case "Keboard":{
+				case "Keyboard":{
 					inputMethod = InputMethod.kKeyboardAndMouse;
 					break;
 				}
 				case "AI":{
 					inputMethod = InputMethod.kAI;
+					if (name == "Player_1"){
+						playerName = "Computer 1";
+					}
+					else if (name == "Player_2"){
+						playerName = "Computer 2";
+					}
+					break;
+				}
+				default:{
+					DebugUtils.Assert (false, "Failed to recoginse input method");
 					break;
 				}
 			}
 		}
 
 		
-		
-		if (inputMethod == InputMethod.kAI){
-			if (name == "Player_1"){
-				playerName = "Computer 1";
-			}
-			else if (name == "Player_2"){
-				playerName = "Computer 2";
-			}
-		}
 		
 		
 	}
@@ -165,15 +169,23 @@ public class Player : MonoBehaviour {
 		
 		// SAIL
 		if (!IsEnableAI()){
-			float triggerValue = Input.GetAxis("RightTrigger" + joystickId);
-			if (triggerValue != 0){
-				hasTriggerChanged = true;
+			if (inputMethod == InputMethod.kJoystick){
+				float triggerValue = Input.GetAxis("RightTrigger" + joystickId);
+				if (triggerValue != 0){
+					hasTriggerChanged = true;
+				}
+				if (!hasTriggerChanged){
+					triggerValue = -1;
+				}
+				float unitJibLength = 1 - 0.5f*(triggerValue + 1);
+				jibAngle = 90 * (Mathf.Pow(unitJibLength, 2));
 			}
-			if (!hasTriggerChanged){
-				triggerValue = -1;
+			else if (inputMethod == InputMethod.kKeyboardAndMouse){
+				float mouseDelta = Input.GetAxis("Mouse Y");
+				jibAngle += 5 * mouseDelta;
+				jibAngle = Mathf.Min (90, Mathf.Max (0, jibAngle));
+				//Debug.Log ("mouseDelta = " + mouseDelta);
 			}
-			float unitJibLength = 1 - 0.5f*(triggerValue + 1);
-			jibAngle = 90 * (Mathf.Pow(unitJibLength, 2));
 		}
 		
 		sailAngleGlob = sailGO.transform.rotation.eulerAngles.z;
@@ -482,8 +494,8 @@ public class Player : MonoBehaviour {
 	}
 	
 	void DrawSailGraph(){
-		UIGraph sailGraph = sailForceGraphGO.GetComponent<UIGraph>();
-		UIGraph fwGraph = fwForceGraphGO.GetComponent<UIGraph>();
+//		UIGraph sailGraph = sailForceGraphGO.GetComponent<UIGraph>();
+//		UIGraph fwGraph = fwForceGraphGO.GetComponent<UIGraph>();
 		
 		
 		Vector3 boatDir = bodyGO.transform.rotation * new Vector3(0, -1, 0);

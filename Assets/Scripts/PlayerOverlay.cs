@@ -132,7 +132,7 @@ public class PlayerOverlay : MonoBehaviour {
 			globalTransparency = 0;
 		}
 		else{
-			globalTransparency = 1;
+			globalTransparency = 1.25f;
 			
 		}
 		

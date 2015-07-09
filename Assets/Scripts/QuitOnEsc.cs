@@ -28,7 +28,13 @@ public class QuitOnEsc : MonoBehaviour {
 				Application.LoadLevel(OnQuitLevelName);
 			}
 			else{
-				AppHelper.Quit();
+				if (GetComponent<FronEndUI>().mode == FronEndUI.Mode.kInstructions){
+					GetComponent<FronEndUI>().GoToMainMenu();
+				}
+				else{
+				
+					AppHelper.Quit();
+				}
 			}
 		}
 		
