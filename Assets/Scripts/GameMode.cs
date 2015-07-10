@@ -104,6 +104,8 @@ public class GameMode : MonoBehaviour {
 		
 	}
 	
+
+	
 	//----------------------------------------------
 	void Awake(){
 		if (singleton != null) Debug.LogError ("Error assigning singleton");

@@ -544,8 +544,6 @@ public class Player : MonoBehaviour {
 		
 		Vector3 boatDir = bodyGO.transform.rotation * new Vector3(0, -1, 0);
 		
-		float maxfw = 0;
-		float minfw = 0;
 		for (int i = -180; i < 180; i++){
 			float testJibAngle = (float)i;
 			
@@ -562,8 +560,6 @@ public class Player : MonoBehaviour {
 			//			points[i] = Vector3.Dot(fwForce, boatDir);;
 			sailPoints[i+180] = new Vector2(testSailAngle, Vector3.Dot(sailForce, saleNormal));
 			fwPoints[i+180] = new Vector2(testSailAngle, Vector3.Dot(fwForce, boatDir));
-			maxfw = Mathf.Max(fwPoints[i+180].y);	
-			minfw = Mathf.Min (fwPoints[i+180].y);	
 			
 		}
 	//	Debug.Log ("maxfw  =" + maxfw + "minfw  =" + minfw);
@@ -756,11 +752,11 @@ public class Player : MonoBehaviour {
 		float thisForce =  Vector3.Dot(fwForceGlob, boatDir);
 
 		
-		float propForce = 1 - (thisForce - minForce) / (maxForce - minForce);
+		float propForce = (thisForce - minForce) / (maxForce - minForce);
 		
-		propForce = Mathf.Pow(propForce, 4);
-		propForce = 1- propForce;
-		//Debug.Log ("thisForce = " + thisForce);
+		propForce = Mathf.Pow(propForce, 5);
+		propForce = propForce;
+		//Debug.Log ("propForce = " + propForce);
 		
 		
 		filter.lowpassResonanceQ = Mathf.Lerp (1, 2.5f, propForce);
@@ -768,8 +764,8 @@ public class Player : MonoBehaviour {
 		
 		// Do the frequency
 		float propSail = sailForceGlob.magnitude/6f;
-		filter.cutoffFrequency = Mathf.Lerp (500, 1000, propSail);
-		transform.FindChild("SailSound").GetComponent<AudioSource>().volume = Mathf.Lerp (0.2f, 0.5f, propSail);
+		filter.cutoffFrequency = Mathf.Lerp (500, 2000, propSail);
+		transform.FindChild("SailSound").GetComponent<AudioSource>().volume = Mathf.Lerp (0.21f, 0.5f, propSail);
 		
 		//Debug.Log ("propSail = " + propSail);
 		

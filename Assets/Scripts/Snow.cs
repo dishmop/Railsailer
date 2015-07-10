@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 //using UnityEngine.Serialization;
-using UnityEditor;
+//using UnityEditor;
 using System.Collections;
 
 public class Snow : MonoBehaviour {
