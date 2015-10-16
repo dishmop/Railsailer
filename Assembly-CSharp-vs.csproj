@@ -46,8 +46,8 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\Continue.cs" />
      <Compile Include="Assets\Scripts\AppHelper.cs" />
+     <Compile Include="Assets\Scripts\Continue.cs" />
      <Compile Include="Assets\Scripts\DebugUtils.cs" />
      <Compile Include="Assets\Scripts\Environment.cs" />
      <Compile Include="Assets\Scripts\FlashingButton.cs" />
@@ -63,11 +63,11 @@
      <Compile Include="Assets\Scripts\Signals.cs" />
      <Compile Include="Assets\Scripts\Snow.cs" />
      <Compile Include="Assets\Scripts\StartUpBanner.cs" />
+     <Compile Include="Assets\Scripts\Tut01BoatXBox.cs" />
      <Compile Include="Assets\Scripts\Tutorial.cs" />
      <Compile Include="Assets\Scripts\UI.cs" />
      <Compile Include="Assets\Scripts\UIGraph.cs" />
      <Compile Include="Assets\Scripts\UIVectorGraph.cs" />
-     <Compile Include="Assets\Tut01BoatXBox.cs" />
      <None Include="Assets\Plugins\VectrosityDemos\Image Effects (Pro Only)\_Sources\Shaders\GlowConeTap.shader" />
      <None Include="Assets\Plugins\VectrosityDemos\Image Effects (Pro Only)\_Sources\Shaders\GlowCompose.shader" />
      <None Include="Assets\Standard Assets\Environment\Water\Water4\Shaders\FXWater4Simple.shader" />

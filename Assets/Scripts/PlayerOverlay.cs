@@ -20,12 +20,15 @@ public class PlayerOverlay : MonoBehaviour {
 	public float transparencyDotted = 1f;
 	public float transparencyFwForce = 1f;
 	public float globalTransparency = 0f;
+	public bool hideOverlay = false;
+	
 		
 	Color transparencyColArrows;
 	Color transparencyColProjections;
 	Color transparencyColMainCircle;
 	Color transparencyColDotted;	
 	Color transparencyColFwForce;
+	
 	
 	Player player;
 	
@@ -128,7 +131,7 @@ public class PlayerOverlay : MonoBehaviour {
 	
 	void DrawAll(){
 	
-		if (player.IsEnableAI() || GameMode.singleton.mode == GameMode.Mode.kSignalOff || GameMode.singleton.mode == GameMode.Mode.kGetJoystick){
+		if (player.IsEnableAI() || GameMode.singleton.mode == GameMode.Mode.kSignalOff || GameMode.singleton.mode == GameMode.Mode.kGetJoystick || hideOverlay){
 			globalTransparency = 0;
 		}
 		else{

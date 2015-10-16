@@ -20,7 +20,7 @@ public class Continue : MonoBehaviour {
 			GetComponent<TextMesh>().text = "Press SPACE to continue";
 		}
 		if (Input.GetKeyDown(KeyCode.Space)){
-			trigger.Invoke();
+ 			trigger.Invoke();
 		}
 		if (Input.GetKeyDown("joystick 1 button 16") || Input.GetKeyDown("joystick 1 button 0")){
 			trigger.Invoke();

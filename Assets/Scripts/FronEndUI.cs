@@ -23,10 +23,21 @@ public class FronEndUI : MonoBehaviour {
 		mode = Mode.kInstructions;
 	}
 	
-	public void StartGame(){
+	public void StartRace(){
 		clickWhir.Play ();
-		Application.LoadLevel("Level1");
+		Application.LoadLevel("TheRace");
 	}
+	
+	public void StartPond(){
+		clickWhir.Play ();
+		Application.LoadLevel("ThePond");
+	}	
+	
+	public void StartTutorial(){
+		clickWhir.Play ();
+		Application.LoadLevel("Tutorial");
+	}	
+	
 	
 	public void Player1Joystick(){
 		clickWhir.Play ();
@@ -75,20 +86,20 @@ public class FronEndUI : MonoBehaviour {
 		transform.FindChild("MainMenu").gameObject.SetActive(mode == Mode.kMainMenu);
 		transform.FindChild("Instructions").gameObject.SetActive(mode == Mode.kInstructions);
 		
-		hasXBoxController = true;
-		// This doesn't work!
+
 		
-//		string[] names = Input.GetJoystickNames();
+		if (!PlayerPrefs.HasKey("Player1") && !clearPlayerPrefs){
+			PlayerPrefs.SetString("Player1", "Keyboard");
+			PlayerPrefs.SetString("Player2", "AI");
+		}
+		string[] names = Input.GetJoystickNames();
 //		Debug.Log("Joystick names:");
-//		for (int i = 0; i < names.Count(); ++i){
+		for (int i = 0; i < names.Count(); ++i){
 //			Debug.Log(names[i]);
-//			if (names[i] == "©Microsoft Corporation Xbox 360 Wired Controller"){
-//				hasXBoxController = true;
-//			}
-//		}
-		transform.FindChild("MainMenu").FindChild("Player1 panel").FindChild("Joystick").GetComponent<Button>().interactable = hasXBoxController;
-		transform.FindChild("MainMenu").FindChild("Player2 panel").FindChild("Joystick").GetComponent<Button>().interactable = hasXBoxController;
-		
+			if (names[i] == "©Microsoft Corporation Xbox 360 Wired Controller"){
+				hasXBoxController = true;
+			}
+		}	
 		if (!hasXBoxController){
 			if (PlayerPrefs.GetString("Player1") == "Joystick"){
 				PlayerPrefs.SetString("Player1", "Keyboard");
@@ -97,11 +108,9 @@ public class FronEndUI : MonoBehaviour {
 				PlayerPrefs.SetString("Player2", "Keyboard");
 			}
 		}
+		transform.FindChild("MainMenu").FindChild("Player1 panel").FindChild("Joystick").GetComponent<Button>().interactable = hasXBoxController;
+		transform.FindChild("MainMenu").FindChild("Player2 panel").FindChild("Joystick").GetComponent<Button>().interactable = hasXBoxController;
 		
-		if (!PlayerPrefs.HasKey("Player1") && !clearPlayerPrefs){
-			PlayerPrefs.SetString("Player1", "Keyboard");
-			PlayerPrefs.SetString("Player2", "AI");
-		}
 		
 	}
 }

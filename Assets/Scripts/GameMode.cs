@@ -134,7 +134,7 @@ public class GameMode : MonoBehaviour {
 	
 		if (tutorial){
 			
-			mode = Mode.kSignalOff;
+			mode = Mode.kRace;
 			if (Time.fixedTime > countInTime + countStepDuration*2){
 				TriggerCameras();
 			} 		
