@@ -128,7 +128,7 @@ public class PlayerOverlay : MonoBehaviour {
 	
 	void DrawAll(){
 	
-		if (player.IsEnableAI() || GameMode.singleton.mode == GameMode.Mode.kSignalOff){
+		if (player.IsEnableAI() || GameMode.singleton.mode == GameMode.Mode.kSignalOff || GameMode.singleton.mode == GameMode.Mode.kGetJoystick){
 			globalTransparency = 0;
 		}
 		else{

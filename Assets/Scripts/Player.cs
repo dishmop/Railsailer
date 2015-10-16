@@ -40,7 +40,7 @@ public class Player : MonoBehaviour {
 	
 	public InputMethod	inputMethod = InputMethod.kJoystick;
 	
-	string joystickId;
+	public string joystickId;
 	
 	float removeSliderTime = -100;
 	float removeSliderDuration = 0.5f;
@@ -65,7 +65,8 @@ public class Player : MonoBehaviour {
 	string lastTriggerName = "FWTrigger";
 	bool enableLapCounter = false;
 	
-	 bool hasTriggerChanged = false;
+	bool hasTriggerChangedOSX = false;
+	bool hasTriggerChangedPC = false;
 	
 	public float boatAngle = 180;
 	float boatAngleVel = 0;
@@ -96,12 +97,12 @@ public class Player : MonoBehaviour {
 
 
 //		fwCursorID = fwForceGraphGO.GetComponent<UIGraph>().AddVCursor();
-		fwForceGraphGO = hud.transform.FindChild("Graphs").FindChild ("FwForceGraph").gameObject;
-		sailForceGraphGO = hud.transform.FindChild("Graphs").FindChild ("SailForceGraph").gameObject;
-		velVecGraphGO = hud.transform.FindChild("Graphs").FindChild("VelocityVectorGraph").gameObject;
+//		fwForceGraphGO = hud.transform.FindChild("Graphs").FindChild ("FwForceGraph").gameObject;
+//		sailForceGraphGO = hud.transform.FindChild("Graphs").FindChild ("SailForceGraph").gameObject;
+//		velVecGraphGO = hud.transform.FindChild("Graphs").FindChild("VelocityVectorGraph").gameObject;
 		
-		sailCursorID = sailForceGraphGO.GetComponent<UIGraph>().AddVCursor();
-		fwCursorID = fwForceGraphGO.GetComponent<UIGraph>().AddVCursor();
+//		sailCursorID = sailForceGraphGO.GetComponent<UIGraph>().AddVCursor();
+//		fwCursorID = fwForceGraphGO.GetComponent<UIGraph>().AddVCursor();
 		
 		jibMaterial = Material.Instantiate(UI.singleton.vectrosityMaterialPrefab);
 		jibMaterial.color = Color.white;
@@ -125,7 +126,7 @@ public class Player : MonoBehaviour {
 			switch (inputMethodString){
 				case "Joystick":{
 					inputMethod = InputMethod.kJoystick;
-					joystickId = UI.singleton.GetFreeJoystickId();
+					joystickId = "Junk";
 					break;
 				}
 				case "Keyboard":{
@@ -165,18 +166,20 @@ public class Player : MonoBehaviour {
 				waves.volume = 0;
 			}
 		}
-		
-		hud.transform.FindChild("NameBox").GetComponent<Text>().text = playerName;
-		if (GameMode.singleton.mode != GameMode.Mode.kRaceComplete){
-			hud.transform.FindChild("LapInfo").GetComponent<Text>().text = "Lap " + (numLapsComplete + 1) +  " of " + GameConfig.singleton.totalNumLaps;
-		}
-		else{
-			hud.transform.FindChild("LapInfo").GetComponent<Text>().text = "";
-			if (GameMode.singleton.winningPlayer == gameObject){
-				//hud.transform.FindChild("LapInfo").GetComponent<Text>().text = "Winner";
+
+		if (hud != null){		
+			hud.transform.FindChild("NameBox").GetComponent<Text>().text = playerName;
+			if (GameMode.singleton.mode != GameMode.Mode.kRaceComplete){
+				hud.transform.FindChild("LapInfo").GetComponent<Text>().text = "Lap " + (numLapsComplete + 1) +  " of " + GameConfig.singleton.totalNumLaps;
 			}
 			else{
-			//	hud.transform.FindChild("LapInfo").GetComponent<Text>().text = "Loser";
+				hud.transform.FindChild("LapInfo").GetComponent<Text>().text = "";
+				if (GameMode.singleton.winningPlayer == gameObject){
+					//hud.transform.FindChild("LapInfo").GetComponent<Text>().text = "Winner";
+				}
+				else{
+				//	hud.transform.FindChild("LapInfo").GetComponent<Text>().text = "Loser";
+				}
 			}
 		}
 		
@@ -186,15 +189,27 @@ public class Player : MonoBehaviour {
 		}
 		
 		// SAIL
-		if (!IsEnableAI()){
+		if (!IsEnableAI() && joystickId != "Junk"){
 			if (inputMethod == InputMethod.kJoystick){
-				float triggerValue = Input.GetAxis("RightTrigger" + joystickId);
-				if (triggerValue != 0){
-					hasTriggerChanged = true;
+				float triggerValueOSX = Input.GetAxis("OSX_RightTrigger" + joystickId);
+				float triggerValuePC = Input.GetAxis("PC_RightTrigger" + joystickId);
+
+
+				if (triggerValueOSX != 0){
+					hasTriggerChangedOSX = true;
 				}
-				if (!hasTriggerChanged){
-					triggerValue = -1;
+				if (!hasTriggerChangedOSX){
+					triggerValueOSX = -1;
 				}
+				if (triggerValuePC != 0){
+					hasTriggerChangedPC = true;
+				}
+				if (!hasTriggerChangedPC){
+					triggerValuePC = -1;
+				}				
+				float triggerValue = triggerValueOSX + triggerValuePC + 1;
+				triggerValue = Mathf.Clamp(triggerValue, -1, 1);
+								
 				float unitJibLength = 1 - 0.5f*(triggerValue + 1);
 				jibAngle = 90 * (Mathf.Pow(unitJibLength, 2));
 			}
@@ -480,8 +495,8 @@ public class Player : MonoBehaviour {
 		Quaternion sailRot = Quaternion.Euler(0, 0, sailAngleGlob);
 		Vector3 saleNormal = sailRot * new Vector3(1, 0, 0);
 		
-		sailForceGraphGO.GetComponent<UIGraph>().SetVCursor(sailCursorID, new Vector2(sailAngle, Vector3.Dot (saleNormal, sailForceGlob)));
-		fwForceGraphGO.GetComponent<UIGraph>().SetVCursor(fwCursorID, new Vector2(sailAngle, Vector3.Dot (fwForceGlob, boatDir)));
+//		sailForceGraphGO.GetComponent<UIGraph>().SetVCursor(sailCursorID, new Vector2(sailAngle, Vector3.Dot (saleNormal, sailForceGlob)));
+//		fwForceGraphGO.GetComponent<UIGraph>().SetVCursor(fwCursorID, new Vector2(sailAngle, Vector3.Dot (fwForceGlob, boatDir)));
 //		Debug.Log ("Vector3.Dot (fwForceGlob, boatDir) = " + Vector3.Dot (fwForceGlob, boatDir));
 		HandleSailSound();
 		
@@ -511,9 +526,9 @@ public class Player : MonoBehaviour {
 	
 	
 	void SetupVelGraph(){
-		velWindID = velVecGraphGO.GetComponent<UIVectorGraph>().AddVector(Color.cyan);
-		velBoatID = velVecGraphGO.GetComponent<UIVectorGraph>().AddVector(Color.cyan);
-		velRelWindID = velVecGraphGO.GetComponent<UIVectorGraph>().AddVector(Color.cyan);
+//		velWindID = velVecGraphGO.GetComponent<UIVectorGraph>().AddVector(Color.cyan);
+//		velBoatID = velVecGraphGO.GetComponent<UIVectorGraph>().AddVector(Color.cyan);
+//		velRelWindID = velVecGraphGO.GetComponent<UIVectorGraph>().AddVector(Color.cyan);
 	}
 	
 	Vector2 TransformVectorToBoatSpace(Vector2 vec){
@@ -523,16 +538,16 @@ public class Player : MonoBehaviour {
 	}
 	
 	void DrawVelGraph(){
-		velVecGraphGO.GetComponent<UIVectorGraph>().SetAxesRanges(-5, 5, -5, 5);
-		
-		Vector2 winVelLoc = TransformVectorToBoatSpace(new Vector2(Environment.singleton.windVel.x, Environment.singleton.windVel.y));
-		Vector2 boatVelLoc = TransformVectorToBoatSpace(GetComponent<Rigidbody2D>().velocity);
-		Vector2 relWindVelLocStart = boatVelLoc;
-		Vector2 relWindVelLocEnd = winVelLoc;
-		
-		velVecGraphGO.GetComponent<UIVectorGraph>().SetVector(velWindID, Vector2.zero, winVelLoc);
-		velVecGraphGO.GetComponent<UIVectorGraph>().SetVector(velBoatID, Vector2.zero, boatVelLoc);
-		velVecGraphGO.GetComponent<UIVectorGraph>().SetVector(velRelWindID, relWindVelLocStart, relWindVelLocEnd);
+//		velVecGraphGO.GetComponent<UIVectorGraph>().SetAxesRanges(-5, 5, -5, 5);
+//		
+//		Vector2 winVelLoc = TransformVectorToBoatSpace(new Vector2(Environment.singleton.windVel.x, Environment.singleton.windVel.y));
+//		Vector2 boatVelLoc = TransformVectorToBoatSpace(GetComponent<Rigidbody2D>().velocity);
+//		Vector2 relWindVelLocStart = boatVelLoc;
+//		Vector2 relWindVelLocEnd = winVelLoc;
+//		
+//		velVecGraphGO.GetComponent<UIVectorGraph>().SetVector(velWindID, Vector2.zero, winVelLoc);
+//		velVecGraphGO.GetComponent<UIVectorGraph>().SetVector(velBoatID, Vector2.zero, boatVelLoc);
+//		velVecGraphGO.GetComponent<UIVectorGraph>().SetVector(velRelWindID, relWindVelLocStart, relWindVelLocEnd);
 		//velVecGraphGO
 		
 	}

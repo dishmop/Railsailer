@@ -13,6 +13,9 @@ public class StartUpBanner : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+		if (GameMode.singleton.mode == GameMode.Mode.kGetJoystick){
+			Start ();
+		}
 		if (GameMode.singleton.mode != GameMode.Mode.kRaceComplete){
 			AudioListener.volume = 1-transform.GetComponent<Image>().color.a;
 		}
