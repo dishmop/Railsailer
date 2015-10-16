@@ -23,13 +23,24 @@ public class FlashingButton : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		Color col = GetComponent<Text>().color;
-		if (isPointerInside)
-			col.a = 1f;
-		else
-			col.a = 0.75f + 0.25f * Mathf.Sin (10 * Time.realtimeSinceStartup);
-		
-		GetComponent<Text>().color = col;
+		if (GetComponent<TextMesh>() != null){
+			Color col = GetComponent<TextMesh>().color;
+			if (isPointerInside)
+				col.a = 1f;
+			else
+				col.a = 0.75f + 0.25f * Mathf.Sin (10 * Time.realtimeSinceStartup);
+			
+			GetComponent<TextMesh>().color = col;
+		}
+		if (GetComponent<Text>() != null){
+			Color col = GetComponent<Text>().color;
+			if (isPointerInside)
+				col.a = 1f;
+			else
+				col.a = 0.75f + 0.25f * Mathf.Sin (10 * Time.realtimeSinceStartup);
+			
+			GetComponent<Text>().color = col;
+		}
 		
 	
 	}

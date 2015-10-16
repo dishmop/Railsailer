@@ -45,6 +45,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Continue.cs" />
     <Compile Include="Assets\Scripts\AppHelper.cs" />
     <Compile Include="Assets\Scripts\DebugUtils.cs" />
     <Compile Include="Assets\Scripts\Environment.cs" />
@@ -65,6 +66,7 @@
     <Compile Include="Assets\Scripts\UI.cs" />
     <Compile Include="Assets\Scripts\UIGraph.cs" />
     <Compile Include="Assets\Scripts\UIVectorGraph.cs" />
+    <Compile Include="Assets\Tut01BoatXBox.cs" />
     <None Include="Assets\Standard Assets\Environment\Water\Water4\Shaders\FXWater4Simple.shader" />
     <None Include="Assets\Standard Assets\CrossPlatformInput\CrossPlatformInputGuidelines.txt" />
     <None Include="Assets\Shaders\MaskedTexture.shader" />
