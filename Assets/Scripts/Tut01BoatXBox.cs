@@ -6,7 +6,7 @@ using System.Text;
 public class Tut01BoatXBox : MonoBehaviour {
 
 	// Use this for initialization
-	void OnEnable () {
+	void Start () {
 		if (PlayerPrefs.GetString("Player1") == "Joystick"){
 			StringBuilder builder = new StringBuilder();
 			builder.Append("This is your boat.\n");
@@ -29,6 +29,9 @@ public class Tut01BoatXBox : MonoBehaviour {
 			builder.Append("for Player 1, otherwise...\n");
 			GetComponent<TextMesh>().text =builder.ToString();
 		}
+		
+		Tutorial.singleton.player.GetComponent<Player>().disableJib = true;
+		Tutorial.singleton.player.GetComponent<Player>().lockPosition = true;		
 	
 	}
 	

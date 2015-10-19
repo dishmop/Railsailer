@@ -12,13 +12,13 @@ public class Tutorial : MonoBehaviour {
 	
 	List<GameObject> tutGOs = new List<GameObject>();
 
-	enum State {
-		kOff,
-		kInitialise,
-		kControls,
-	}
-	
-	State state = State.kOff;
+//	enum State {
+//		kOff,
+//		kInitialise,
+//		kControls,
+//	}
+//	
+//	State state = State.kOff;
 	
 	public void ShowOverlay(bool show){
 		player.transform.FindChild("Overlay").GetComponent<PlayerOverlay>().hideOverlay = !show;
@@ -42,6 +42,8 @@ public class Tutorial : MonoBehaviour {
 		startTime = Time.time;
 		
 		ShowOverlay(false);
+		player.GetComponent<Player>().lockPosition = true;
+		player.GetComponent<Player>().disableJib = true;
 		
 	
 	}
@@ -57,9 +59,12 @@ public class Tutorial : MonoBehaviour {
 			tutGOs[i].SetActive(i == step);
 		}
 		
-		if (step == 1){
-			ShowOverlay(true);
-		}
+//		if (step == 1){
+//			ShowOverlay(true);
+//			player.GetComponent<Player>().lockPosition = false;
+//			player.GetComponent<Player>().disableJib = false;
+//		}
+		
 	}
 	
 	

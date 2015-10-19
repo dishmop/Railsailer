@@ -21,9 +21,11 @@ public class Continue : MonoBehaviour {
 		}
 		if (Input.GetKeyDown(KeyCode.Space)){
  			trigger.Invoke();
+ 			GameMode.singleton.PlayClickWhir();
 		}
 		if (Input.GetKeyDown("joystick 1 button 16") || Input.GetKeyDown("joystick 1 button 0")){
 			trigger.Invoke();
+			GameMode.singleton.PlayClickWhir();
 		}
 		
 	}

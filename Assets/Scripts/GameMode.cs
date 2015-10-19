@@ -82,6 +82,10 @@ public class GameMode : MonoBehaviour {
 		}
 	}
 	
+	public void PlayClickWhir(){
+		clickWhir.Play();
+	}
+	
 	void HandleJoysticks(){
 		
 		string player1Input = PlayerPrefs.GetString("Player1");

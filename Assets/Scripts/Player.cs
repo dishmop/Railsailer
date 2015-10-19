@@ -29,6 +29,8 @@ public class Player : MonoBehaviour {
 	public AudioSource wind;
 	public AudioSource waves;
 	public AudioSource crash;
+	public bool lockPosition = false;
+	public bool disableJib = false;
 	
 	
 	public enum InputMethod{
@@ -72,16 +74,19 @@ public class Player : MonoBehaviour {
 	float boatAngleVel = 0;
 	public  Vector3 currentVel = Vector3.zero;
 	
-	int fwCursorID = -1;
-	int sailCursorID = -1;
-	
-	int velWindID = -1;
-	int velBoatID = -1;
-	int velRelWindID;
+//	int fwCursorID = -1;
+//	int sailCursorID = -1;
+//	
+//	int velWindID = -1;
+//	int velBoatID = -1;
+//	int velRelWindID;
 	
 	float jibAngle = 0;
 	
 	int audioPlayCount = 10;
+	public bool isSailWobbling;
+	public float wobbleStartTime = 0;
+	public float recordSailAngle = 0;
 	
 	
 	
@@ -209,6 +214,9 @@ public class Player : MonoBehaviour {
 				}				
 				float triggerValue = triggerValueOSX + triggerValuePC + 1;
 				triggerValue = Mathf.Clamp(triggerValue, -1, 1);
+				if (disableJib){
+					triggerValue= -1;
+				}
 								
 				float unitJibLength = 1 - 0.5f*(triggerValue + 1);
 				jibAngle = 90 * (Mathf.Pow(unitJibLength, 2));
@@ -217,6 +225,10 @@ public class Player : MonoBehaviour {
 				float mouseDelta = Input.GetAxis("Mouse Y");
 				jibAngle += 5 * mouseDelta;
 				jibAngle = Mathf.Min (90, Mathf.Max (0, jibAngle));
+				if (disableJib){
+					jibAngle= 90;
+				}
+				
 				//Debug.Log ("mouseDelta = " + mouseDelta);
 			}
 		}
@@ -447,6 +459,12 @@ public class Player : MonoBehaviour {
 	// Update is called once per frame
 	void FixedUpdate () {
 	
+		if (lockPosition){
+			GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.FreezeAll;
+		}
+		else{
+			GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.None;
+		}
 
 		if (wind != null){
 			Vector3 relWindVel = Environment.singleton.windVel - currentVel;
@@ -484,16 +502,31 @@ public class Player : MonoBehaviour {
 		
 		sailAngle = ConvertJibToSailAngle(jibAngle);
 		
-
+		// If the two are different, then rope is loose
+		if (Mathf.Abs(Mathf.Abs(sailAngle) - Mathf.Abs (jibAngle)) > 0.001f){
+			if (!isSailWobbling){
+				isSailWobbling = true;
+				wobbleStartTime = Time.fixedTime;
+			}
+		}
+		else{
+			isSailWobbling = false;
+		}
 		
-		sailGO.transform.localRotation = Quaternion.Euler(0, 0, sailAngle);
+		float wobbleValue = 0;
+		if (isSailWobbling){
+			wobbleValue = Mathf.Sin(50 * (Time.fixedTime - wobbleStartTime));
+		}
+		recordSailAngle = jibAngle;
+
+		sailGO.transform.localRotation = Quaternion.Euler(0, 0, sailAngle + 3 * wobbleValue);
 			
 		Vector3 windForce;
 		CalcVectors(sailAngleGlob, currentVel, boatDir, out windForce, out sailForceGlob, out fwForceGlob);
 		
 		
-		Quaternion sailRot = Quaternion.Euler(0, 0, sailAngleGlob);
-		Vector3 saleNormal = sailRot * new Vector3(1, 0, 0);
+//		Quaternion sailRot = Quaternion.Euler(0, 0, sailAngleGlob);
+//		Vector3 saleNormal = sailRot * new Vector3(1, 0, 0);
 		
 //		sailForceGraphGO.GetComponent<UIGraph>().SetVCursor(sailCursorID, new Vector2(sailAngle, Vector3.Dot (saleNormal, sailForceGlob)));
 //		fwForceGraphGO.GetComponent<UIGraph>().SetVCursor(fwCursorID, new Vector2(sailAngle, Vector3.Dot (fwForceGlob, boatDir)));
@@ -510,7 +543,13 @@ public class Player : MonoBehaviour {
 		// Calc accn
 		
 		
-		GetComponent<Rigidbody2D>().AddForce(boatForce + fwForceGlob);
+		if (!float.IsNaN((boatForce + fwForceGlob).x)){
+			GetComponent<Rigidbody2D>().AddForce(boatForce + fwForceGlob);
+		}
+		else{
+			Debug.LogError("NAN force");
+			return;
+		}
 
 		
 		if (!GameMode.singleton.IsRacing()){
@@ -770,7 +809,7 @@ public class Player : MonoBehaviour {
 		float propForce = (thisForce - minForce) / (maxForce - minForce);
 		
 		propForce = Mathf.Pow(propForce, 5);
-		propForce = propForce;
+//		propForce = propForce;
 		//Debug.Log ("propForce = " + propForce);
 		
 		
