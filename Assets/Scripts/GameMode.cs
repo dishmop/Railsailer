@@ -48,6 +48,7 @@ public class GameMode : MonoBehaviour {
 	}
 	
 	public void TriggerWinner(GameObject winner){
+		
 		if (winningPlayer == null){
 			winningPlayer = winner;
 			mode = Mode.kRaceComplete;

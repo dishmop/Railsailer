@@ -32,6 +32,8 @@ public class Player : MonoBehaviour {
 	public bool lockPosition = false;
 	public bool disableJib = false;
 	public bool disableRudder = false;
+	public bool overrideControls = false;
+	public float maxSpeed = -1;
 	
 	public enum InputMethod{
 		kNone,	
@@ -94,7 +96,7 @@ public class Player : MonoBehaviour {
 	float sailAngleGlob = 0;
 	
 	public bool IsEnableAI(){
-		return inputMethod == InputMethod.kAI;
+		return inputMethod == InputMethod.kAI || overrideControls;
 	}
 	
 	// Use this for initialization
@@ -554,10 +556,16 @@ public class Player : MonoBehaviour {
 	
 		
 		// Calc accn
+		float currentSpeed = currentVel.magnitude;
+		Vector3 maxSpeedForce = Vector3.zero;
+		if (maxSpeed >= 0 && currentSpeed > maxSpeed && Vector3.Dot(currentVel, boatDir) > 0){
+			maxSpeedForce = -2f * (boatForce + fwForceGlob);
+		}
+
 		
 		
 		if (!float.IsNaN((boatForce + fwForceGlob).x)){
-			GetComponent<Rigidbody2D>().AddForce(boatForce + fwForceGlob);
+			GetComponent<Rigidbody2D>().AddForce(boatForce + fwForceGlob + maxSpeedForce);
 		}
 		else{
 			Debug.Log("Error: NAN force");
@@ -870,6 +878,8 @@ public class Player : MonoBehaviour {
 	
 	void OnTriggerEnter2D(Collider2D collider){
 		string triggerName = collider.gameObject.name;
+
+		
 		
 		if (triggerName == "FWTrigger"){
 			enableLapCounter = true;
@@ -890,6 +900,7 @@ public class Player : MonoBehaviour {
 		}
 		
 		lastTriggerName = triggerName;
+		
 		
 
 	}

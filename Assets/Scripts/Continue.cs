@@ -5,6 +5,8 @@ using UnityEngine.Events;
 
 public class Continue : MonoBehaviour {
 	public UnityEvent trigger;
+	public string keyboardText = "Press SPACE to continue";
+	public string joystickText = "Press A to continue";
 
 	// Use this for initialization
 	void Start () {
@@ -14,10 +16,10 @@ public class Continue : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		if (PlayerPrefs.GetString("Player1") == "Joystick"){
-			GetComponent<TextMesh>().text = "Press A to continue";
+			GetComponent<TextMesh>().text = joystickText;
 		}
 		else{
-			GetComponent<TextMesh>().text = "Press SPACE to continue";
+			GetComponent<TextMesh>().text = keyboardText;
 		}
 		if (Input.GetKeyDown(KeyCode.Space)){
  			trigger.Invoke();

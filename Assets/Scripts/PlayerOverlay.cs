@@ -165,9 +165,9 @@ public class PlayerOverlay : MonoBehaviour {
 		
 		// Right angle symbols
 		Vector2[] dummyPoints3 = new Vector2[3];
-		windToSailRA = new VectorLine("windToSailRA", dummyPoints3, UI.singleton.arrowMaterial, 5, LineType.Continuous, Joins.Weld);
+		windToSailRA = new VectorLine("windToSailRA", dummyPoints3, UI.singleton.arrowMaterial, lineSize, LineType.Continuous, Joins.Weld);
 		
-		sailToFwRA = new VectorLine("windToSailRA", dummyPoints3, UI.singleton.arrowMaterial, 5, LineType.Continuous, Joins.Weld);
+		sailToFwRA = new VectorLine("windToSailRA", dummyPoints3, UI.singleton.arrowMaterial, lineSize, LineType.Continuous, Joins.Weld);
 
 		
 		// Cost function
@@ -179,7 +179,7 @@ public class PlayerOverlay : MonoBehaviour {
 	
 	void DrawAll(){
 	
-		if (player.IsEnableAI() || GameMode.singleton.mode == GameMode.Mode.kSignalOff || GameMode.singleton.mode == GameMode.Mode.kGetJoystick || hideOverlay){
+		if ((player.IsEnableAI() && !player.overrideControls)|| GameMode.singleton.mode == GameMode.Mode.kSignalOff || GameMode.singleton.mode == GameMode.Mode.kGetJoystick || hideOverlay){
 			globalTransparency = 0;
 		}
 		else{
@@ -294,7 +294,7 @@ public class PlayerOverlay : MonoBehaviour {
 		sailToFwForceTo.Draw();
 		
 		/* right angle symbols */
-		float rightAngleBoxSize = rightAngleBoxSizeProp * Screen.width;
+		float rightAngleBoxSize = rightAngleBoxSizeProp * Screen.width * lineSize/ 5f;
 		
 		// Scale size if box needs to be smaller
 		float windToSailMaxSize = (sailForceLoc * visScale).magnitude;

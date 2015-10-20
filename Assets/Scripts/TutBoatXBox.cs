@@ -10,6 +10,7 @@ public class TutBoatXBox : MonoBehaviour {
 		if (PlayerPrefs.GetString("Player1") == "Joystick"){
 			StringBuilder builder = new StringBuilder();
 			builder.Append("This is your boat.\n");
+			builder.Append("It is anchored right now.\n");
 			builder.Append("\n");
 			builder.Append("The best way to control it is with \n");
 			builder.Append("an XBox360 controller - which is\n"); 
@@ -20,6 +21,7 @@ public class TutBoatXBox : MonoBehaviour {
 		else{
 			StringBuilder builder = new StringBuilder();
 			builder.Append("This is your boat.\n");
+			builder.Append("It is anchored right now.\n");
 			builder.Append("\n");
 			builder.Append("The best way to control it is with \n");
 			builder.Append("an XBox360 controller. If you\n"); 

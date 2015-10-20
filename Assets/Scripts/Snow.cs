@@ -9,6 +9,7 @@ public class Snow : MonoBehaviour {
 	float baseEmissionRate;
 	
 	Quaternion startRot;
+	float maxAlpha;
 
 
 	
@@ -24,6 +25,8 @@ public class Snow : MonoBehaviour {
 		// Get the velocity of the camera
 		
 		baseEmissionRate =  transform.FindChild("Particle System").gameObject.GetComponent<ParticleSystem>().emissionRate;
+		Color col = transform.FindChild("Particle System").GetComponent<Renderer>().material.color;
+		maxAlpha = col.a;
 	
 	}
 	
@@ -36,7 +39,13 @@ public class Snow : MonoBehaviour {
 		float newEmissionRate = emmiterVel.magnitude * baseParticlesPerMeter;
 		
 		transform.FindChild("Particle System").gameObject.GetComponent<ParticleSystem>().emissionRate = newEmissionRate;
-		
+		float maxCamSize = 15f;
+		float minCamSize = 8.5f;
+		float camRange = maxCamSize - minCamSize;
+		float alphaVal = maxAlpha * Mathf.Clamp01(1f -(Camera.main.orthographicSize - minCamSize) / camRange);
+		Color col = transform.FindChild("Particle System").GetComponent<Renderer>().material.color;
+		col.a = alphaVal;
+		transform.FindChild("Particle System").GetComponent<Renderer>().material.color = col;
 		lastPos = transform.position;
 	
 	}

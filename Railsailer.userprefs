@@ -1,28 +1,31 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="MonoDevelop.Default" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/TutFwMove.cs">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/TutExplainReverse.cs">
     <Files>
-      <File FileName="Assets/Scripts/PlayerOverlay.cs" Line="36" Column="30" />
-      <File FileName="Assets/Scripts/Player.cs" Line="470" Column="32" />
+      <File FileName="Assets/Scripts/Player.cs" Line="564" Column="1" />
+      <File FileName="Assets/Scripts/TutBoatXBox.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/PlayerOverlay.cs" Line="300" Column="23" />
       <File FileName="Assets/Scripts/FronEndUI.cs" Line="1" Column="1" />
       <File FileName="Assets/Scripts/GameMode.cs" Line="1" Column="1" />
       <File FileName="Assets/Scripts/StartUpBanner.cs" Line="1" Column="1" />
       <File FileName="Assets/Scripts/Continue.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/Tutorial.cs" Line="46" Column="53" />
-      <File FileName="Assets/Scripts/TutBoatXBox.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/Tutorial.cs" Line="1" Column="1" />
       <File FileName="Assets/Scripts/TutMainSheet.cs" Line="1" Column="1" />
       <File FileName="Assets/Scripts/TutWindForce.cs" Line="1" Column="1" />
       <File FileName="Assets/Scripts/TutDelayContinue.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/TutFwForce.cs" Line="9" Column="81" />
+      <File FileName="Assets/Scripts/TutFwForce.cs" Line="1" Column="1" />
       <File FileName="Assets/Scripts/TutSailNormal.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/TutWindForceProject.cs" Line="10" Column="1" />
-      <File FileName="Assets/TutFwMove.cs" Line="8" Column="3" />
+      <File FileName="Assets/Scripts/TutWindForceProject.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/Snow.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/TutFwMoveReally.cs" Line="1" Column="1" />
+      <File FileName="Assets/TutPassFinish.cs" Line="10" Column="1" />
+      <File FileName="Assets/CollisionTrigger.cs" Line="14" Column="36" />
+      <File FileName="Assets/TutReadyReverse.cs" Line="19" Column="32" />
+      <File FileName="Assets/TutExplainReverse.cs" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore>
-      <Breakpoint file="/Users/dac70/ownCloud/CUED_IWTSE/GamePrototyping/ProtoRelease/Railsailer/Assets/Scripts/Player.cs" line="563" />
-    </BreakpointStore>
+    <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
 </Properties>
