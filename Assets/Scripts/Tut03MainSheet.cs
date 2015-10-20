@@ -32,7 +32,7 @@ public class Tut03MainSheet : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		float sailAngle = Tutorial.singleton.player.GetComponent<Player>().recordSailAngle;
+		float sailAngle = Tutorial.singleton.player.GetComponent<Player>().sailAngle;
 		if (lastSailAngle < 999){
 			cumulativeDeg += Mathf.Abs(lastSailAngle - sailAngle);
 		}

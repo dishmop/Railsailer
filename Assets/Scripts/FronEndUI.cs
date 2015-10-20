@@ -6,8 +6,9 @@ using UnityEngine.UI;
 public class FronEndUI : MonoBehaviour {
 	public AudioSource clickWhir;
 	public AudioSource littleClick;
-	public bool hasXBoxController;
+	public int numXBoxControllers;
 	public bool clearPlayerPrefs = false;
+	public int lastestPlayerToSelectjoystick = 1;
 
 	public enum Mode{
 		kMainMenu,
@@ -42,11 +43,13 @@ public class FronEndUI : MonoBehaviour {
 	public void Player1Joystick(){
 		clickWhir.Play ();
 		PlayerPrefs.SetString("Player1", "Joystick");
+		lastestPlayerToSelectjoystick = 1;
 	}
 
 	public void Player2Joystick(){
 		clickWhir.Play ();
 		PlayerPrefs.SetString("Player2", "Joystick");
+		lastestPlayerToSelectjoystick = 2;
 	}
 	
 	public void Player1Keyboard(){
@@ -78,7 +81,7 @@ public class FronEndUI : MonoBehaviour {
 		if (clearPlayerPrefs){
 			PlayerPrefs.DeleteAll();
 		}
-		hasXBoxController = false;
+		numXBoxControllers = 0;
 	}
 	
 	// Update is called once per frame
@@ -94,13 +97,14 @@ public class FronEndUI : MonoBehaviour {
 		}
 		string[] names = Input.GetJoystickNames();
 //		Debug.Log("Joystick names:");
+		numXBoxControllers = 0;
 		for (int i = 0; i < names.Count(); ++i){
 //			Debug.Log(names[i]);
 			if (names[i] == "©Microsoft Corporation Xbox 360 Wired Controller"){
-				hasXBoxController = true;
+				numXBoxControllers++;
 			}
 		}	
-		if (!hasXBoxController){
+		if (numXBoxControllers == 0){
 			if (PlayerPrefs.GetString("Player1") == "Joystick"){
 				PlayerPrefs.SetString("Player1", "Keyboard");
 			}			
@@ -108,8 +112,18 @@ public class FronEndUI : MonoBehaviour {
 				PlayerPrefs.SetString("Player2", "Keyboard");
 			}
 		}
-		transform.FindChild("MainMenu").FindChild("Player1 panel").FindChild("Joystick").GetComponent<Button>().interactable = hasXBoxController;
-		transform.FindChild("MainMenu").FindChild("Player2 panel").FindChild("Joystick").GetComponent<Button>().interactable = hasXBoxController;
+		if (numXBoxControllers == 1){
+			if (PlayerPrefs.GetString("Player1") == "Joystick" && PlayerPrefs.GetString("Player2") == "Joystick"){
+				if (lastestPlayerToSelectjoystick == 1){
+					PlayerPrefs.SetString("Player2", "Keyboard");
+				}
+				else{
+					PlayerPrefs.SetString("Player1", "Keyboard");
+				}
+			}
+		}
+		transform.FindChild("MainMenu").FindChild("Player1 panel").FindChild("Joystick").GetComponent<Button>().interactable = (numXBoxControllers != 0);
+		transform.FindChild("MainMenu").FindChild("Player2 panel").FindChild("Joystick").GetComponent<Button>().interactable = (numXBoxControllers != 0);
 		
 		
 	}

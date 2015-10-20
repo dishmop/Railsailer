@@ -178,7 +178,8 @@ public class PlayerOverlay : MonoBehaviour {
 		windDirLine.Draw ();
 		
 		// Sail Dir
-		Quaternion sailRot = Quaternion.Euler(0, 0, player.sailAngle);
+		Quaternion sailRot = Quaternion.Euler(0, 0, player.sailAngle + 180);
+		
 		Vector2 sailVecLoc = sailRot * new Vector2(1, 0); 
 		Vector2 sailDir = sailVecLoc.normalized;
 		Vector2 sailDirStartPos = centrePos + radius * sailDir;

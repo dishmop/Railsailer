@@ -82,11 +82,11 @@ public class Player : MonoBehaviour {
 //	int velRelWindID;
 	
 	float jibAngle = 0;
+//	bool sailJibError = false;
 	
 	int audioPlayCount = 10;
 	public bool isSailWobbling;
 	public float wobbleStartTime = 0;
-	public float recordSailAngle = 0;
 	
 	
 	
@@ -233,13 +233,14 @@ public class Player : MonoBehaviour {
 			}
 		}
 		
-		sailAngleGlob = sailGO.transform.rotation.eulerAngles.z;
+		sailAngleGlob = bodyGO.transform.rotation.eulerAngles.z + sailAngle;
+		 
 		
 		Vector3 boatDir = bodyGO.transform.rotation * new Vector3(0, -1, 0);
 		
 		
 		// BOAT
-		if (!IsEnableAI()){
+		if (!IsEnableAI() && joystickId != "Junk"){
 			if (GameMode.singleton.IsRacing()){
 				if (inputMethod == InputMethod.kJoystick){
 					float joystickVal = Input.GetAxis("Horizontal" + joystickId);
@@ -502,6 +503,13 @@ public class Player : MonoBehaviour {
 		
 		sailAngle = ConvertJibToSailAngle(jibAngle);
 		
+//		sailJibError = jibAngle < Mathf.Abs (sailAngle) -  1f;
+//		
+//		if (sailJibError){
+//			sailAngle = ConvertJibToSailAngle(jibAngle);
+//		}
+		
+		
 		// If the two are different, then rope is loose
 		if (Mathf.Abs(Mathf.Abs(sailAngle) - Mathf.Abs (jibAngle)) > 0.001f){
 			if (!isSailWobbling){
@@ -517,8 +525,7 @@ public class Player : MonoBehaviour {
 		if (isSailWobbling){
 			wobbleValue = Mathf.Sin(50 * (Time.fixedTime - wobbleStartTime));
 		}
-		recordSailAngle = jibAngle;
-
+	
 		sailGO.transform.localRotation = Quaternion.Euler(0, 0, sailAngle + 3 * wobbleValue);
 			
 		Vector3 windForce;
@@ -653,7 +660,7 @@ public class Player : MonoBehaviour {
 	float ConvertJibToSailAngle(float jibAngle){
 		
 		// Work out the maximum/minimum angle the wind would be blowing it
-		Vector3 sailNormal = sailGO.transform.rotation * new Vector3(1, 0, 0);
+		Vector3 sailNormal = Quaternion.Euler(0, 0, sailAngle) * bodyGO.transform.rotation * new Vector3(1, 0, 0);
 		Vector3 relWindVel = Environment.singleton.windVel - currentVel;
 		Vector3 windForceLoc = (relWindVel * sailStrength).normalized; 
 		float dotResult = Vector3.Dot (sailNormal, windForceLoc);
@@ -662,9 +669,12 @@ public class Player : MonoBehaviour {
 		float maxAngle = sailAngle - Mathf.Rad2Deg * Mathf.Asin(dotResult);
 		
 		
-		Vector3 boatDir = bodyGO.transform.rotation * new Vector3(0, 1, 0);
-		Vector3 sailNormalDir = sailNormal + boatDir * 0.0001f;
-		float dotResultDir = Vector3.Dot (sailNormalDir, windForceLoc);
+		Vector3 boatSideDir = bodyGO.transform.rotation * new Vector3(1, 0, 0);
+//		Vector3 sailNormalDir = sailNormal + boatDir * 0.0001f;
+		float dotResultDir = Vector3.Dot (boatSideDir, windForceLoc);
+		
+//		Debug.DrawLine(bodyGO.transform.position, bodyGO.transform.position + boatSideDir, Color.red);
+//		Debug.DrawLine(bodyGO.transform.position, bodyGO.transform.position + windForceLoc, Color.green);
 //		
 //		// figure out which way the wind is blowing accros the boat
 //		Vector3 boatSideDir = bodyGO.transform.rotation * new Vector3(1, 0, 0);
@@ -877,6 +887,10 @@ public class Player : MonoBehaviour {
 		
 
 	}
+	
+//	void OnGUI(){
+//		GUI.Label(new Rect(10, 10, 500, 50), "jib = " + jibAngle + ", sail = " + sailAngle + (sailJibError ? " - Error" : "") );
+//	}
 
 	
 }

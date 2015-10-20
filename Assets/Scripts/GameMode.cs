@@ -108,21 +108,27 @@ public class GameMode : MonoBehaviour {
 			joystick1Done = true;
 		}
 		if (player2 != null){
-			if (joystick1Done && !joystick2Done && player2Input == "Joystick"){
-				player2JoystickMsg.SetActive(true);
-				if (Input.GetKeyDown("joystick 1 button 16") || Input.GetKeyDown("joystick 1 button 0")){
-					player2.GetComponent<Player>().joystickId = "-J1";
-					joystick2Done = true;
-					clickWhir.Play();
+			if (joystick1Done){
+				if (!joystick2Done && player2Input == "Joystick"){
+					player2JoystickMsg.SetActive(true);
+					if (player1.GetComponent<Player>().joystickId != "-J1"){
+						if (Input.GetKeyDown("joystick 1 button 16") || Input.GetKeyDown("joystick 1 button 0")){
+							player2.GetComponent<Player>().joystickId = "-J1";
+							joystick2Done = true;
+							clickWhir.Play();
+						}
+					}
+					if (player1.GetComponent<Player>().joystickId != "-J2"){
+						if (Input.GetKeyDown("joystick 2 button 16") || Input.GetKeyDown("joystick 2 button 0")){
+							player2.GetComponent<Player>().joystickId = "-J2";
+							joystick2Done = true;
+						}			
+					}
 				}
-				if (Input.GetKeyDown("joystick 2 button 16") || Input.GetKeyDown("joystick 2 button 0")){
-					player2.GetComponent<Player>().joystickId = "-J2";
+				else{
+					player2JoystickMsg.SetActive(false);
 					joystick2Done = true;
-				}			
-			}
-			else{
-				player2JoystickMsg.SetActive(false);
-				joystick2Done = true;
+				}
 			}
 		}
 		else{
