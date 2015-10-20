@@ -143,11 +143,19 @@ public class GameMode : MonoBehaviour {
 	void FixedUpdate () {
 	
 		if (tutorial){
+			HandleJoysticks();
 			
-			mode = Mode.kRace;
-			if (Time.fixedTime > countInTime + countStepDuration*2){
-				TriggerCameras();
-			} 		
+			if (joystick1Done && joystick2Done && mode == Mode.kSignalOff){
+				mode = Mode.kRace;
+				countInTime = Time.fixedTime;
+			}
+		
+			if (mode == Mode.kRace){				
+				if (Time.fixedTime > countInTime + countStepDuration*2){
+					TriggerCameras();
+				} 		
+				
+			}
 
 			return;
 		}
@@ -161,7 +169,7 @@ public class GameMode : MonoBehaviour {
 		gameCompletePanel.SetActive(false);
 	
 		if (mode == Mode.kInit){
-			countInTime = 0;
+			countInTime = Time.fixedTime;
 		}
 		
 		Mode lastMode = mode;

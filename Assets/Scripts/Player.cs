@@ -14,9 +14,9 @@ public class Player : MonoBehaviour {
 	public GameObject hud;
 	public GameObject wakeParticleSystem;
 	public float aiLookAhead = 2;
-	public Vector3 boatDir;
-	public Vector3 sailForceGlob;
-	public Vector3 fwForceGlob;
+	public Vector3 boatDir = new Vector3(0, 1, 0);
+	public Vector3 sailForceGlob = Vector3.zero;
+	public Vector3 fwForceGlob = Vector3.zero;
 	public Material jibLineMaterial;
 	
 	public Vector3 sternPos;
@@ -31,7 +31,7 @@ public class Player : MonoBehaviour {
 	public AudioSource crash;
 	public bool lockPosition = false;
 	public bool disableJib = false;
-	
+	public bool disableRudder = false;
 	
 	public enum InputMethod{
 		kNone,	
@@ -202,12 +202,14 @@ public class Player : MonoBehaviour {
 
 				if (triggerValueOSX != 0){
 					hasTriggerChangedOSX = true;
+					hasTriggerChangedPC = false;
 				}
 				if (!hasTriggerChangedOSX){
 					triggerValueOSX = -1;
 				}
 				if (triggerValuePC != 0){
 					hasTriggerChangedPC = true;
+					hasTriggerChangedOSX = false;
 				}
 				if (!hasTriggerChangedPC){
 					triggerValuePC = -1;
@@ -265,6 +267,10 @@ public class Player : MonoBehaviour {
 					}
 					
 					power = Mathf.Max (-100, Mathf.Min (100, power));
+				}
+				
+				if (disableRudder){
+					power = 0;
 				}
 			
 				
@@ -554,7 +560,7 @@ public class Player : MonoBehaviour {
 			GetComponent<Rigidbody2D>().AddForce(boatForce + fwForceGlob);
 		}
 		else{
-			Debug.LogError("NAN force");
+			Debug.Log("Error: NAN force");
 			return;
 		}
 

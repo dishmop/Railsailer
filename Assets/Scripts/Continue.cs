@@ -23,7 +23,7 @@ public class Continue : MonoBehaviour {
  			trigger.Invoke();
  			GameMode.singleton.PlayClickWhir();
 		}
-		if (Input.GetKeyDown("joystick 1 button 16") || Input.GetKeyDown("joystick 1 button 0")){
+		if (Input.GetKeyDown("joystick 1 button 16") || Input.GetKeyDown("joystick 1 button 0") || Input.GetKeyDown("joystick 2 button 16") || Input.GetKeyDown("joystick 2 button 0")){
 			trigger.Invoke();
 			GameMode.singleton.PlayClickWhir();
 		}

@@ -6,6 +6,7 @@ using System.Linq;
 public class Tutorial : MonoBehaviour {	
 	public static Tutorial singleton = null;
 	public GameObject player;
+	public GameObject overlay;
 	public int step = -1;
 	public float startDelay = 8;
 	float startTime;
@@ -21,7 +22,7 @@ public class Tutorial : MonoBehaviour {
 //	State state = State.kOff;
 	
 	public void ShowOverlay(bool show){
-		player.transform.FindChild("Overlay").GetComponent<PlayerOverlay>().hideOverlay = !show;
+		overlay.GetComponent<PlayerOverlay>().hideOverlay = !show;
 	}
 	
 	public void MoveOn(){
@@ -44,7 +45,7 @@ public class Tutorial : MonoBehaviour {
 		ShowOverlay(false);
 		player.GetComponent<Player>().lockPosition = true;
 		player.GetComponent<Player>().disableJib = true;
-		
+		player.GetComponent<Player>().disableRudder = true;
 	
 	}
 	

@@ -2,10 +2,7 @@
 using System.Collections;
 using System.Text;
 
-public class Tut03MainSheet : MonoBehaviour {
-
-	public float cumulativeDeg ;
-	float lastSailAngle = 1000;
+public class TutMainSheet : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
@@ -26,20 +23,9 @@ public class Tut03MainSheet : MonoBehaviour {
 		}
 		GetComponent<TextMesh>().text = builder.ToString(); 
 		Tutorial.singleton.player.GetComponent<Player>().disableJib = false;
-		transform.FindChild("ContinueButton").gameObject.SetActive(false);
-		cumulativeDeg = 0;
 	}
 	
 	// Update is called once per frame
-	void Update () {
-		float sailAngle = Tutorial.singleton.player.GetComponent<Player>().sailAngle;
-		if (lastSailAngle < 999){
-			cumulativeDeg += Mathf.Abs(lastSailAngle - sailAngle);
-		}
-		lastSailAngle = sailAngle;
-		if (cumulativeDeg > 200){
-			transform.FindChild("ContinueButton").gameObject.SetActive(true);
-		}
-	
+	void FixedUpdate () {
 	}
 }

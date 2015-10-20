@@ -3,7 +3,7 @@ using System.Collections;
 using UnityEngine.UI;
 using System.Text;
 
-public class Tut01BoatXBox : MonoBehaviour {
+public class TutBoatXBox : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {

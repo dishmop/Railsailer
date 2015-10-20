@@ -22,6 +22,19 @@ public class PlayerOverlay : MonoBehaviour {
 	public float globalTransparency = 0f;
 	public bool hideOverlay = false;
 	
+	
+	// Diable vairous things
+	public bool disableMainCircle;
+	public bool disableWindDirLine = false; // I don;t think we should ever show this
+	public bool disableSailDirLine;
+	public bool disableBoatDirLine;
+	public bool disableWindForceLine;
+	public bool disableSailForceLine;
+	public bool disableFwForceLine;
+	
+	public float lineSize = 5;
+	public float arrowSize = 10;
+	
 		
 	Color transparencyColArrows;
 	Color transparencyColProjections;
@@ -64,6 +77,41 @@ public class PlayerOverlay : MonoBehaviour {
 	VectorLine costFunctionLine;
 	
 	
+	public void DisableAll(bool disable){
+		disableMainCircle = disable;  
+		disableWindDirLine = disable;
+		disableSailDirLine = disable;
+		disableBoatDirLine = disable;
+		disableWindForceLine = disable;
+		disableSailForceLine = disable;
+		disableFwForceLine = disable;
+	}
+	
+	void ApplyDisableFlags(){
+		mainCircleLine.active = !disableMainCircle;
+		
+		windDirLine.active = !disableWindDirLine;
+		sailDirLine.active = !disableSailDirLine;
+		boatDirLine.active = !disableBoatDirLine;
+		
+		// Arrows
+		windForceLine.active = !disableWindForceLine;
+		sailForceLine.active = !disableSailForceLine;
+		fwForceLine.active = !disableFwForceLine;
+		
+		// Projection lines
+		windToSailForceFrom.active = windForceLine.active && sailForceLine.active;
+		windToSailForceTo.active = windForceLine.active && sailForceLine.active;
+		
+		sailToFwForceFrom.active = sailForceLine.active && fwForceLine.active;
+		sailToFwForceTo.active = sailForceLine.active && fwForceLine.active;
+		
+		// Right angle symbols
+		windToSailRA.active = windToSailForceFrom.active ;
+		sailToFwRA.active = sailToFwForceFrom.active;
+		
+		
+	}
 
 
 	void ConstructLines(){
@@ -80,39 +128,39 @@ public class PlayerOverlay : MonoBehaviour {
 		Vector2[] dummyPoints2 = new Vector2[2];
 		
 		// Dotted lines
-		windDirLine = new VectorLine("Wind Dir", dummyPoints2, UI.singleton.smallDottedLineMaterial, 5);
+		windDirLine = new VectorLine("Wind Dir", dummyPoints2, UI.singleton.smallDottedLineMaterial, lineSize);
 		windDirLine.textureScale = 1;
 		
-		sailDirLine = new VectorLine("Sail Dir", dummyPoints2, UI.singleton.smallDottedLineMaterial, 5);
+		sailDirLine = new VectorLine("Sail Dir", dummyPoints2, UI.singleton.smallDottedLineMaterial, lineSize);
 		sailDirLine.textureScale = 1;
 		
-		boatDirLine = new VectorLine("Boat Dir", dummyPoints2, UI.singleton.smallDottedLineMaterial, 5);
+		boatDirLine = new VectorLine("Boat Dir", dummyPoints2, UI.singleton.smallDottedLineMaterial, lineSize);
 		boatDirLine.textureScale = 1;
 		
 
 		
 		// Arrows
-		windForceLine = new VectorLine("Wind Force Arrow", dummyPoints2, UI.singleton.arrowMaterial, 10);
+		windForceLine = new VectorLine("Wind Force Arrow", dummyPoints2, UI.singleton.arrowMaterial, arrowSize);
 		windForceLine.endCap = "rounded_arrow";
 		
-		sailForceLine = new VectorLine("Sail Force Arrow", dummyPoints2, UI.singleton.arrowMaterial, 10);
+		sailForceLine = new VectorLine("Sail Force Arrow", dummyPoints2, UI.singleton.arrowMaterial, arrowSize);
 		sailForceLine.endCap = "rounded_arrow";
 		
-		fwForceLine = new VectorLine("Forward Force Arrow", dummyPoints2, UI.singleton.arrowMaterial, 10);
+		fwForceLine = new VectorLine("Forward Force Arrow", dummyPoints2, UI.singleton.arrowMaterial, arrowSize);
 		fwForceLine.endCap = "rounded_arrow";
 		
 		// projection lines
-		windToSailForceFrom = new VectorLine("WindToSailFrom", dummyPoints2, UI.singleton.gradiatedLineMaterial, 5);
+		windToSailForceFrom = new VectorLine("WindToSailFrom", dummyPoints2, UI.singleton.gradiatedLineMaterial, lineSize);
 		windToSailForceFrom.endCap = "gradiated_end";
 		
-		windToSailForceTo = new VectorLine("WindToSailTo", dummyPoints2, UI.singleton.gradiatedLineMaterial, 5);
+		windToSailForceTo = new VectorLine("WindToSailTo", dummyPoints2, UI.singleton.gradiatedLineMaterial, lineSize);
 		windToSailForceTo.endCap = "gradiated_end";
 		
 		
-		sailToFwForceFrom = new VectorLine("sailToFwForceFrom", dummyPoints2, UI.singleton.gradiatedLineMaterial, 5);
+		sailToFwForceFrom = new VectorLine("sailToFwForceFrom", dummyPoints2, UI.singleton.gradiatedLineMaterial, lineSize);
 		sailToFwForceFrom.endCap = "gradiated_end";
 		
-		sailToFwForceTo = new VectorLine("sailToFwForceTo", dummyPoints2, UI.singleton.gradiatedLineMaterial, 5);
+		sailToFwForceTo = new VectorLine("sailToFwForceTo", dummyPoints2, UI.singleton.gradiatedLineMaterial, lineSize);
 		sailToFwForceTo.endCap = "gradiated_end";
 		
 		// Right angle symbols
@@ -300,6 +348,7 @@ public class PlayerOverlay : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		DrawAll();
+		ApplyDisableFlags();
 	
 	}
 }
