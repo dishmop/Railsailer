@@ -50,6 +50,11 @@ public class Tutorial : MonoBehaviour {
 	}
 	
 	void FixedUpdate(){
+		if (GameMode.singleton.mode == GameMode.Mode.kSignalOff){
+			startTime = Time.time;
+			return;
+		}
+		
 		if (step < 0){
 			if (Time.time > startTime + startDelay){
 				step = 0;

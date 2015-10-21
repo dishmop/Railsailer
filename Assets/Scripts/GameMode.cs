@@ -63,18 +63,23 @@ public class GameMode : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		if (!hackyTurnOffStart){
-			StartCountIn();
+		StartCountIn();
+		if (Tutorial.singleton == null){
+			mode = Mode.kSignalOff;
+		}
+		else{
+			mode = Mode.kGetJoystick;
 		}
 		joystick1Done = false;
 		joystick2Done = false;
+
 		
 	
 	}
 	
 	void Update(){
-		Cursor.visible = (mode == Mode.kRaceComplete);
-		Cursor.lockState = (mode == Mode.kRaceComplete) ? CursorLockMode.None : CursorLockMode.Confined;
+		Cursor.visible = (mode == Mode.kRaceComplete || GameConfig.singleton.enableEdit);
+		Cursor.lockState = (mode == Mode.kRaceComplete || GameConfig.singleton.enableEdit) ? CursorLockMode.None : CursorLockMode.Confined;
 	}
 	
 	public void TriggerCameras(){
@@ -145,10 +150,13 @@ public class GameMode : MonoBehaviour {
 	
 		if (tutorial){
 			HandleJoysticks();
-			
-			if (joystick1Done && joystick2Done && mode == Mode.kSignalOff){
-				mode = Mode.kRace;
+			if (!joystick1Done || !joystick2Done){
 				countInTime = Time.fixedTime;
+			}
+			
+			if (joystick1Done && joystick2Done && mode == Mode.kGetJoystick){
+				mode = Mode.kRace;
+				
 			}
 		
 			if (mode == Mode.kRace){				

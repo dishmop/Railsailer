@@ -6,7 +6,7 @@ public class TutPassFinish : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		Tutorial.singleton.player.GetComponent<Player>().overrideControls = true;
-		Tutorial.singleton.player.GetComponent<Player>().maxSpeed = 2;
+		Tutorial.singleton.player.GetComponent<Player>().maxSpeed = 3;
 		
 	
 	}

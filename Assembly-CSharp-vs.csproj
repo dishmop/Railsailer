@@ -46,8 +46,8 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\CollisionTrigger.cs" />
      <Compile Include="Assets\Scripts\AppHelper.cs" />
+     <Compile Include="Assets\Scripts\CollisionTrigger.cs" />
      <Compile Include="Assets\Scripts\Continue.cs" />
      <Compile Include="Assets\Scripts\DebugUtils.cs" />
      <Compile Include="Assets\Scripts\Environment.cs" />
@@ -58,19 +58,28 @@
      <Compile Include="Assets\Scripts\GameMode.cs" />
      <Compile Include="Assets\Scripts\MenuTick.cs" />
      <Compile Include="Assets\Scripts\Player.cs" />
+     <Compile Include="Assets\Scripts\PlayerArrows.cs" />
      <Compile Include="Assets\Scripts\PlayerOverlay.cs" />
      <Compile Include="Assets\Scripts\QuitOnEsc.cs" />
      <Compile Include="Assets\Scripts\RailMaker.cs" />
      <Compile Include="Assets\Scripts\Signals.cs" />
      <Compile Include="Assets\Scripts\Snow.cs" />
      <Compile Include="Assets\Scripts\StartUpBanner.cs" />
+     <Compile Include="Assets\Scripts\TutBackGo.cs" />
      <Compile Include="Assets\Scripts\TutBoatXBox.cs" />
      <Compile Include="Assets\Scripts\TutDelayContinue.cs" />
+     <Compile Include="Assets\Scripts\TutExplainReverse.cs" />
+     <Compile Include="Assets\Scripts\TutFinish.cs" />
+     <Compile Include="Assets\Scripts\TutFreeRide.cs" />
      <Compile Include="Assets\Scripts\TutFwForce.cs" />
      <Compile Include="Assets\Scripts\TutFwMove.cs" />
      <Compile Include="Assets\Scripts\TutFwMoveReally.cs" />
      <Compile Include="Assets\Scripts\TutKeel.cs" />
      <Compile Include="Assets\Scripts\TutMainSheet.cs" />
+     <Compile Include="Assets\Scripts\TutPassFinish.cs" />
+     <Compile Include="Assets\Scripts\TutReadyReverse.cs" />
+     <Compile Include="Assets\Scripts\TutReadyStartAgain.cs" />
+     <Compile Include="Assets\Scripts\TutRudder.cs" />
      <Compile Include="Assets\Scripts\TutSailNormal.cs" />
      <Compile Include="Assets\Scripts\TutWindForce.cs" />
      <Compile Include="Assets\Scripts\TutWindForceProject.cs" />
@@ -78,9 +87,6 @@
      <Compile Include="Assets\Scripts\UI.cs" />
      <Compile Include="Assets\Scripts\UIGraph.cs" />
      <Compile Include="Assets\Scripts\UIVectorGraph.cs" />
-     <Compile Include="Assets\TutExplainReverse.cs" />
-     <Compile Include="Assets\TutPassFinish.cs" />
-     <Compile Include="Assets\TutReadyReverse.cs" />
      <None Include="Assets\Plugins\VectrosityDemos\Image Effects (Pro Only)\_Sources\Shaders\GlowConeTap.shader" />
      <None Include="Assets\Plugins\VectrosityDemos\Image Effects (Pro Only)\_Sources\Shaders\GlowCompose.shader" />
      <None Include="Assets\Standard Assets\Environment\Water\Water4\Shaders\FXWater4Simple.shader" />

@@ -179,7 +179,7 @@ public class PlayerOverlay : MonoBehaviour {
 	
 	void DrawAll(){
 	
-		if ((player.IsEnableAI() && !player.overrideControls)|| GameMode.singleton.mode == GameMode.Mode.kSignalOff || GameMode.singleton.mode == GameMode.Mode.kGetJoystick || hideOverlay){
+		if ((player.IsEnableAI() )|| GameMode.singleton.mode == GameMode.Mode.kSignalOff || GameMode.singleton.mode == GameMode.Mode.kGetJoystick || hideOverlay){
 			globalTransparency = 0;
 		}
 		else{
@@ -249,6 +249,10 @@ public class PlayerOverlay : MonoBehaviour {
 		// Force of the wind on the sale in local space
 		Vector2 sailForceLoc = invBoatRot * player.sailForceGlob;
 		Vector2 fwForceLoc = invBoatRot * player.fwForceGlob;
+		
+		if (fwForceLoc.magnitude < 0.01f){
+			fwForceLoc = new Vector2(0, -0.01f);
+		}
 		
 		
 		// Wind Force

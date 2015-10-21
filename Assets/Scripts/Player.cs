@@ -34,6 +34,7 @@ public class Player : MonoBehaviour {
 	public bool disableRudder = false;
 	public bool overrideControls = false;
 	public float maxSpeed = -1;
+	public float desAngle = -1;
 	
 	public enum InputMethod{
 		kNone,	
@@ -53,12 +54,15 @@ public class Player : MonoBehaviour {
 	float lastJoystickVal = 0;
 	float power = 0;
 	
+	float emergencyTime = -100;
+	float emergencyDuration = 5;
 	
 	
 	GameObject sailForceGraphGO;
 	GameObject fwForceGraphGO;
 	GameObject velVecGraphGO;
 
+	Vector3 boatForce;
 	
 	VectorLine jibLine;
 	Material jibMaterial;
@@ -101,6 +105,12 @@ public class Player : MonoBehaviour {
 	
 	// Use this for initialization
 	void Start () {
+	//	Debug.Log(Time.fixedTime + ": Start()");
+	
+		if (transform.position.x == 0 && transform.position.y == 0){
+			Debug.Log ("Error: Start start:  0, 0");
+		}
+		
 
 
 //		fwCursorID = fwForceGraphGO.GetComponent<UIGraph>().AddVCursor();
@@ -157,12 +167,30 @@ public class Player : MonoBehaviour {
 			}
 		}
 
+		if (transform.position.x == 0 && transform.position.y == 0){
+			Debug.Log ("Error: Start end:  0, 0");
+		}
 		
+
 		
 		
 	}
 	
 	void Update(){
+	
+	// For debugging
+//		if (Input.GetKeyDown(KeyCode.Space)){
+//			GetComponent<Rigidbody2D>().velocity = Vector3.zero;
+//		}
+		//Debug.Log(Time.fixedTime + ": Update()");
+		
+		// NOt sure why this error occurs sometimes
+		if (transform.position.x == 0 && transform.position.y == 0){
+			Debug.Log ("Error: Update start:  0, 0");
+			Application.LoadLevel(Application.loadedLevel);
+			return;
+		}
+		
 		if (audioPlayCount-- == 0){
 			if (wind != null){
 				wind.Play();
@@ -196,44 +224,46 @@ public class Player : MonoBehaviour {
 		}
 		
 		// SAIL
-		if (!IsEnableAI() && joystickId != "Junk"){
-			if (inputMethod == InputMethod.kJoystick){
-				float triggerValueOSX = Input.GetAxis("OSX_RightTrigger" + joystickId);
-				float triggerValuePC = Input.GetAxis("PC_RightTrigger" + joystickId);
-
-
-				if (triggerValueOSX != 0){
-					hasTriggerChangedOSX = true;
-					hasTriggerChangedPC = false;
+		if (!IsEnableAI()){
+			if (joystickId != "Junk"){
+				if (inputMethod == InputMethod.kJoystick){
+					float triggerValueOSX = Input.GetAxis("OSX_RightTrigger" + joystickId);
+					float triggerValuePC = Input.GetAxis("PC_RightTrigger" + joystickId);
+	
+	
+					if (triggerValueOSX != 0){
+						hasTriggerChangedOSX = true;
+						hasTriggerChangedPC = false;
+					}
+					if (!hasTriggerChangedOSX){
+						triggerValueOSX = -1;
+					}
+					if (triggerValuePC != 0){
+						hasTriggerChangedPC = true;
+						hasTriggerChangedOSX = false;
+					}
+					if (!hasTriggerChangedPC){
+						triggerValuePC = -1;
+					}				
+					float triggerValue = triggerValueOSX + triggerValuePC + 1;
+					triggerValue = Mathf.Clamp(triggerValue, -1, 1);
+					if (disableJib){
+						triggerValue= -1;
+					}
+									
+					float unitJibLength = 1 - 0.5f*(triggerValue + 1);
+					jibAngle = 90 * (Mathf.Pow(unitJibLength, 2));
 				}
-				if (!hasTriggerChangedOSX){
-					triggerValueOSX = -1;
+				else if (inputMethod == InputMethod.kKeyboardAndMouse){
+					float mouseDelta = Input.GetAxis("Mouse Y");
+					jibAngle += 5 * mouseDelta;
+					jibAngle = Mathf.Min (90, Mathf.Max (0, jibAngle));
+					if (disableJib){
+						jibAngle= 90;
+					}
+					
+					//Debug.Log ("mouseDelta = " + mouseDelta);
 				}
-				if (triggerValuePC != 0){
-					hasTriggerChangedPC = true;
-					hasTriggerChangedOSX = false;
-				}
-				if (!hasTriggerChangedPC){
-					triggerValuePC = -1;
-				}				
-				float triggerValue = triggerValueOSX + triggerValuePC + 1;
-				triggerValue = Mathf.Clamp(triggerValue, -1, 1);
-				if (disableJib){
-					triggerValue= -1;
-				}
-								
-				float unitJibLength = 1 - 0.5f*(triggerValue + 1);
-				jibAngle = 90 * (Mathf.Pow(unitJibLength, 2));
-			}
-			else if (inputMethod == InputMethod.kKeyboardAndMouse){
-				float mouseDelta = Input.GetAxis("Mouse Y");
-				jibAngle += 5 * mouseDelta;
-				jibAngle = Mathf.Min (90, Mathf.Max (0, jibAngle));
-				if (disableJib){
-					jibAngle= 90;
-				}
-				
-				//Debug.Log ("mouseDelta = " + mouseDelta);
 			}
 		}
 		
@@ -244,39 +274,38 @@ public class Player : MonoBehaviour {
 		
 		
 		// BOAT
-		if (!IsEnableAI() && joystickId != "Junk"){
-			if (GameMode.singleton.IsRacing()){
-				if (inputMethod == InputMethod.kJoystick){
-					float joystickVal = Input.GetAxis("Horizontal" + joystickId);
-					if (joystickVal != lastJoystickVal){
-						lastJoystickVal = joystickVal;
-						power = -100 * joystickVal;
-					}
-				}
-				else if (inputMethod == InputMethod.kKeyboardAndMouse){
-					bool left = Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow);
-					bool right = Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow);
-					power += left ? 10 : 0;
-					power -= right ? 10 : 0;
-					
-					if (!left && !right && Mathf.Abs (power) > 0.1f){
-						if (power > 0){
-							power -= 10;
-						}
-						else{
-							power += 10;
+		if (!IsEnableAI()){
+			if (joystickId != "Junk"){
+				if (GameMode.singleton.IsRacing()){
+					if (inputMethod == InputMethod.kJoystick){
+						float joystickVal = Input.GetAxis("Horizontal" + joystickId);
+						if (joystickVal != lastJoystickVal){
+							lastJoystickVal = joystickVal;
+							power = -100 * joystickVal;
 						}
 					}
+					else if (inputMethod == InputMethod.kKeyboardAndMouse){
+						bool left = Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow);
+						bool right = Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow);
+						power += left ? 10 : 0;
+						power -= right ? 10 : 0;
+						
+						if (!left && !right && Mathf.Abs (power) > 0.1f){
+							if (power > 0){
+								power -= 10;
+							}
+							else{
+								power += 10;
+							}
+						}
+						
+						power = Mathf.Max (-100, Mathf.Min (100, power));
+					}
 					
-					power = Mathf.Max (-100, Mathf.Min (100, power));
+					if (disableRudder){
+						power = 0;
+					}
 				}
-				
-				if (disableRudder){
-					power = 0;
-				}
-			
-				
-
 				//Debug.Log ("Power = " + power);
 			}
 		}
@@ -290,6 +319,10 @@ public class Player : MonoBehaviour {
 			float crossResult = Vector3.Cross (desDir, boatDir).z;
 			power = -100*crossResult;
 			
+			if (IsInEmergency()){
+				power = 100;
+			}
+			
 		}
 		float speed = Vector3.Dot(boatDir, GetComponent<Rigidbody2D>().velocity);
 		if (speed >= -0.25f){
@@ -297,6 +330,9 @@ public class Player : MonoBehaviour {
 		}
 		else{
 			speed -= 0.5f;
+		}
+		if (lockPosition && disableRudder){
+			speed = 0;
 		}
 		float angleAccn = power * speed;
 		boatAngleVel += angleAccn * Time.deltaTime;
@@ -320,6 +356,11 @@ public class Player : MonoBehaviour {
 		
 		DrawJibRope(Mathf.Abs (sailAngle), jibAngle);
 		DrawVelGraph();
+		
+		if (transform.position.x == 0 && transform.position.y == 0){
+			Debug.Log ("Error: Update end:  0, 0");
+		}
+		
 		
 
 	}
@@ -463,13 +504,28 @@ public class Player : MonoBehaviour {
 				
 	}
 	
-
+	bool IsInEmergency(){
+		return Time.fixedTime < emergencyTime + emergencyDuration;
+	}
 	
+
 	// Update is called once per frame
 	void FixedUpdate () {
 	
+
+	//	Debug.Log(Time.fixedTime + ": FixedUpdate()");
+	
+		if (transform.position.x == 0 && transform.position.y == 0){
+			Debug.Log ("Error: FixedUpdate start:  0, 0");
+		}
+	
 		if (lockPosition){
-			GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.FreezeAll;
+			if (disableRudder){
+				GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.FreezeAll;
+			}
+			else{
+				GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.FreezePosition;
+			}
 		}
 		else{
 			GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.None;
@@ -507,6 +563,9 @@ public class Player : MonoBehaviour {
 		
 		if (IsEnableAI()){
 			jibAngle = CalcOptimalJib();
+		}
+		if (IsInEmergency()){
+			jibAngle = 0;
 		}
 		
 		sailAngle = ConvertJibToSailAngle(jibAngle);
@@ -552,14 +611,29 @@ public class Player : MonoBehaviour {
 		
 		
 		// Work out force from wind pushing against boat
-		Vector3 boatForce = boatWindStrength * boatDir * Vector3.Dot (windForce, boatDir);
+		boatForce = boatWindStrength * boatDir * Vector3.Dot (windForce, boatDir);
 	
 		
 		// Calc accn
 		float currentSpeed = currentVel.magnitude;
 		Vector3 maxSpeedForce = Vector3.zero;
 		if (maxSpeed >= 0 && currentSpeed > maxSpeed && Vector3.Dot(currentVel, boatDir) > 0){
-			maxSpeedForce = -2f * (boatForce + fwForceGlob);
+			maxSpeedForce = -(currentVel + fwForceGlob) - boatDir * fwForceGlob.magnitude * 1.1f;
+
+		}
+		
+		if (maxSpeed == 0){
+			float speed = 10; // degrees per second
+			float deltaMove = speed * Time.fixedDeltaTime;
+			if (Mathf.Abs(boatAngle - desAngle) < deltaMove * 1.1f){
+			}
+			else if (boatAngle > desAngle){
+				boatAngle -= speed * Time.fixedDeltaTime;
+			}
+			else{
+				boatAngle += speed * Time.fixedDeltaTime;
+			}
+			
 		}
 
 		
@@ -569,6 +643,7 @@ public class Player : MonoBehaviour {
 		}
 		else{
 			Debug.Log("Error: NAN force");
+			Application.LoadLevel(Application.loadedLevel);
 			return;
 		}
 
@@ -581,6 +656,12 @@ public class Player : MonoBehaviour {
 		}
 		
 		DrawSailGraph();
+		if (transform.position.x == 0 && transform.position.y == 0){
+			Debug.Log ("Error: FixedUpdate end:  0, 0");
+		}
+		
+	//	Debug.Log (Time.fixedTime + ": RigidBodyPos = " + GetComponent<Rigidbody2D>().position.ToString());
+		
 		
 	}
 	
@@ -651,6 +732,8 @@ public class Player : MonoBehaviour {
 		Vector3 boatDir = bodyGO.transform.rotation * new Vector3(0, -1, 0);
 //		Debug.Log("sailAngleGlob - sailAngle = " + (sailAngleGlob -sailAngle));
 		int numSteps = 360;
+		// SO that if nothing is fount the sum in the test will be zero
+		Vector3 maxFwForce = - boatForce;
 		for (int i = 0; i < 90; i++){
 			float testJibAngle = 90f * (float)i / (float)(numSteps-1);
 		
@@ -665,30 +748,30 @@ public class Player : MonoBehaviour {
 			if (thisPower > maxPower){
 				maxPowerAngle = testJibAngle;
 				maxPower = thisPower;
+				maxFwForce = fwForce;
 			}
 		}
-//		Debug.Log("maxPowerAngle = " + maxPowerAngle);
+		if (Vector3.Dot((boatForce + maxFwForce), boatDir) < 0.01f && Vector3.Dot(GetComponent<Rigidbody2D>().velocity, boatDir) < 0.01f && GameMode.singleton.IsRacing()){
+			//Debug.Log ("Emergency");
+			emergencyTime = Time.fixedTime;
+		}
 		return maxPowerAngle;
 	}
 	
 	float ConvertJibToSailAngle(float jibAngle){
-		
-		// Work out the maximum/minimum angle the wind would be blowing it
-		Vector3 sailNormal = Quaternion.Euler(0, 0, sailAngle) * bodyGO.transform.rotation * new Vector3(1, 0, 0);
 		Vector3 relWindVel = Environment.singleton.windVel - currentVel;
 		Vector3 windForceLoc = (relWindVel * sailStrength).normalized; 
-		float dotResult = Vector3.Dot (sailNormal, windForceLoc);
-		// Clamp to -1, +1
-		dotResult = Mathf.Min (1, Mathf.Max (-1, dotResult));
-		float maxAngle = sailAngle - Mathf.Rad2Deg * Mathf.Asin(dotResult);
-		
-		
+
 		Vector3 boatSideDir = bodyGO.transform.rotation * new Vector3(1, 0, 0);
-//		Vector3 sailNormalDir = sailNormal + boatDir * 0.0001f;
 		float dotResultDir = Vector3.Dot (boatSideDir, windForceLoc);
 		
-//		Debug.DrawLine(bodyGO.transform.position, bodyGO.transform.position + boatSideDir, Color.red);
-//		Debug.DrawLine(bodyGO.transform.position, bodyGO.transform.position + windForceLoc, Color.green);
+		Debug.DrawLine(bodyGO.transform.position, bodyGO.transform.position + boatSideDir, Color.red);
+		Debug.DrawLine(bodyGO.transform.position, bodyGO.transform.position + windForceLoc, Color.green);
+		
+		float newDot = Vector2.Dot (-boatDir, windForceLoc);
+
+		
+		
 //		
 //		// figure out which way the wind is blowing accros the boat
 //		Vector3 boatSideDir = bodyGO.transform.rotation * new Vector3(1, 0, 0);
@@ -700,8 +783,14 @@ public class Player : MonoBehaviour {
 		
 		
 		//			Debug.Log (jibAngle);
+		newDot = Mathf.Clamp(newDot, -1, 1);
+		float maxAngle =  Mathf.Acos(newDot)*Mathf.Rad2Deg;
+		
+		if (float.IsNaN(jibAngle) || float.IsNaN(maxAngle)){
+			Debug.Log ("Error: Nan");
+		}
 		if (dotResultDir > 0){
-			return Mathf.Max (-jibAngle, maxAngle);
+			return Mathf.Max (-jibAngle, -maxAngle);
 		}
 		else{
 			return Mathf.Min (jibAngle, maxAngle);
@@ -709,6 +798,11 @@ public class Player : MonoBehaviour {
 	}
 	
 	void CalcVectors(float sailAngleLoc, Vector3 boatVel, Vector3 boatFwDir, out Vector3 windForce, out Vector3 sailForce, out Vector3 fwForce){
+	
+		if (float.IsNaN(sailAngleLoc)){
+			Debug.Log ("Error: sailAngleLoc is NAN");
+			sailAngleLoc = 0;
+		}
 	
 		Quaternion sailOrient = Quaternion.Euler(0, 0, sailAngleLoc);
 		Vector3 saleNormal = sailOrient * new Vector3(1, 0, 0);
@@ -904,9 +998,9 @@ public class Player : MonoBehaviour {
 		
 
 	}
-	
+//	
 //	void OnGUI(){
-//		GUI.Label(new Rect(10, 10, 500, 50), "jib = " + jibAngle + ", sail = " + sailAngle + (sailJibError ? " - Error" : "") );
+//		GUI.Label(new Rect(10, 10, 500, 50), "max angle = " + guiAngle);
 //	}
 
 	
