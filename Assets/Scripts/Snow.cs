@@ -36,7 +36,7 @@ public class Snow : MonoBehaviour {
 		Vector3 emmiterVel = Environment.singleton.windVel - camVel;
 		
 		float baseParticlesPerMeter = baseEmissionRate / Environment.singleton.windVel.magnitude;
-		float newEmissionRate = emmiterVel.magnitude * baseParticlesPerMeter;
+		float newEmissionRate = emmiterVel.magnitude * baseParticlesPerMeter / Mathf.Pow(2f, SetupResolution.numReductions);
 		
 		transform.FindChild("Particle System").gameObject.GetComponent<ParticleSystem>().emissionRate = newEmissionRate;
 		float maxCamSize = 15f;

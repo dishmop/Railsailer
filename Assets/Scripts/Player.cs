@@ -178,6 +178,15 @@ public class Player : MonoBehaviour {
 	
 	void Update(){
 	
+		// Debugging
+		float rot1 = GetComponent<SliderJoint2D>().angle;
+		Vector3 fw = Quaternion.Euler(0, 0, rot1) * new Vector3(1, 0, 0) ;
+		Debug.DrawLine(transform.position, transform.position + fw, Color.blue);
+	
+		float rot2 = GetComponent<Rigidbody2D>().rotation;
+		Vector3 fw2 = Quaternion.Euler(0, 0, rot2) * new Vector3(1, 0, 0) ;
+		Debug.DrawLine(transform.position, transform.position + fw2, Color.green);
+		
 	// For debugging
 //		if (Input.GetKeyDown(KeyCode.Space)){
 //			GetComponent<Rigidbody2D>().velocity = Vector3.zero;
@@ -528,7 +537,7 @@ public class Player : MonoBehaviour {
 			}
 		}
 		else{
-			GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.None;
+			GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.FreezeRotation;
 		}
 
 		if (wind != null){
@@ -765,8 +774,8 @@ public class Player : MonoBehaviour {
 		Vector3 boatSideDir = bodyGO.transform.rotation * new Vector3(1, 0, 0);
 		float dotResultDir = Vector3.Dot (boatSideDir, windForceLoc);
 		
-		Debug.DrawLine(bodyGO.transform.position, bodyGO.transform.position + boatSideDir, Color.red);
-		Debug.DrawLine(bodyGO.transform.position, bodyGO.transform.position + windForceLoc, Color.green);
+//		Debug.DrawLine(bodyGO.transform.position, bodyGO.transform.position + boatSideDir, Color.red);
+//		Debug.DrawLine(bodyGO.transform.position, bodyGO.transform.position + windForceLoc, Color.green);
 		
 		float newDot = Vector2.Dot (-boatDir, windForceLoc);
 
