@@ -2,6 +2,8 @@
 using System.Collections;
 using UnityEngine.UI;
 using System.Text;
+using System.Collections.Generic;
+using UnityEngine.Analytics;
 
 public class TutBoatXBox : MonoBehaviour {
 
@@ -34,6 +36,11 @@ public class TutBoatXBox : MonoBehaviour {
 		
 		Tutorial.singleton.player.GetComponent<Player>().disableJib = true;
 		Tutorial.singleton.player.GetComponent<Player>().lockPosition = true;		
+		
+		Analytics.CustomEvent("tutorial0Start", new Dictionary<string, object>
+		{
+			{ "tutTime", Tutorial.singleton.GetTutorialTime()},
+		});			
 	
 	}
 	

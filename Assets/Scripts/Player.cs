@@ -1,8 +1,10 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using Vectrosity;
+using UnityEngine.Analytics;
 
 public class Player : MonoBehaviour {
 	public GameObject bodyGO;
@@ -57,6 +59,8 @@ public class Player : MonoBehaviour {
 	float emergencyTime = -100;
 	float emergencyDuration = 5;
 	
+	float startTime = -1;
+	
 	
 	GameObject sailForceGraphGO;
 	GameObject fwForceGraphGO;
@@ -110,6 +114,9 @@ public class Player : MonoBehaviour {
 		if (transform.position.x == 0 && transform.position.y == 0){
 			Debug.Log ("Error: Start start:  0, 0");
 		}
+		
+		
+		startTime = Time.fixedTime;
 		
 
 
@@ -521,12 +528,16 @@ public class Player : MonoBehaviour {
 	// Update is called once per frame
 	void FixedUpdate () {
 	
-
-	//	Debug.Log(Time.fixedTime + ": FixedUpdate()");
-	
 		if (transform.position.x == 0 && transform.position.y == 0){
 			Debug.Log ("Error: FixedUpdate start:  0, 0");
 		}
+		
+		// We only start timing ourselves when the lockPosition is off
+		if (lockPosition){
+			startTime = Time.fixedTime;
+		}
+		
+		
 	
 		if (lockPosition){
 			if (disableRudder){
@@ -954,6 +965,12 @@ public class Player : MonoBehaviour {
 	}
 	
 	void OnTriggerStartLine(){
+		Analytics.CustomEvent("lapComplete", new Dictionary<string, object>
+		                      {
+			{ "player", name },
+			{ "lapTime", Time.fixedTime - startTime},
+		});		
+		
 		if (numLapsComplete == GameConfig.singleton.totalNumLaps){
 			GameMode.singleton.TriggerWinner(gameObject);
 		}

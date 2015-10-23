@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
+using UnityEngine.Analytics;
 
 public class TutFwMoveReally : MonoBehaviour {
 
@@ -7,7 +9,10 @@ public class TutFwMoveReally : MonoBehaviour {
 	void Start () {
 		Tutorial.singleton.player.GetComponent<Player>().lockPosition = false;
 		
-	
+		Analytics.CustomEvent("tutorial2MoveReally", new Dictionary<string, object>
+		{
+			{ "tutTime", Tutorial.singleton.GetTutorialTime()},
+		});	
 	}
 	
 	// Update is called once per frame

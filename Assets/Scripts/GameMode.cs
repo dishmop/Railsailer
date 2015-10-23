@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using System.Collections;
+using System;
+using System.Collections.Generic;
+using UnityEngine.Analytics;
 
 public class GameMode : MonoBehaviour {
 	public static GameMode singleton = null;
@@ -34,6 +36,8 @@ public class GameMode : MonoBehaviour {
 	bool joystick1Done;
 	bool joystick2Done;
 	
+	float startTime = -1;
+	
 	float countStepDuration = 2;
 	
 	float countInTime = 0;
@@ -54,7 +58,11 @@ public class GameMode : MonoBehaviour {
 			mode = Mode.kRaceComplete;
 			horn.Play ();
 		}
-	
+		Analytics.CustomEvent("raceComplete", new Dictionary<string, object>
+		                      {
+			{ "player", winner.name },
+			{ "raceTime", Time.fixedTime - startTime},
+		});		
 	}
 	
 	public void ReturnToMainMenu(){
@@ -63,6 +71,7 @@ public class GameMode : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+		startTime= Time.fixedTime;
 		StartCountIn();
 		if (Tutorial.singleton == null){
 			mode = Mode.kSignalOff;
@@ -72,6 +81,14 @@ public class GameMode : MonoBehaviour {
 		}
 		joystick1Done = false;
 		joystick2Done = false;
+		
+		
+		Analytics.CustomEvent("gameStart", new Dictionary<string, object>
+		                      {
+			{ "leveName", Application.loadedLevelName },
+			{ "player1Ctrl", PlayerPrefs.GetString("Player1") },
+			{ "player2Ctrl", PlayerPrefs.GetString("Player2") }
+		});
 
 		
 	
@@ -79,7 +96,7 @@ public class GameMode : MonoBehaviour {
 	
 	void Update(){
 		Cursor.visible = (mode == Mode.kRaceComplete || GameConfig.singleton.enableEdit);
-		Cursor.lockState = (mode == Mode.kRaceComplete || GameConfig.singleton.enableEdit) ? CursorLockMode.None : CursorLockMode.Confined;
+		Cursor.lockState = (mode == Mode.kRaceComplete || GameConfig.singleton.enableEdit) ? CursorLockMode.None : CursorLockMode.Locked;
 	}
 	
 	public void TriggerCameras(){

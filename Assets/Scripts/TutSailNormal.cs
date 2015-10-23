@@ -1,11 +1,20 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
+using UnityEngine.Analytics;
+
 
 public class TutSailNormal : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
 		Tutorial.singleton.overlay.GetComponent<PlayerOverlay>().disableSailDirLine = false;
+		
+		Analytics.CustomEvent("tutorial1SailNormal", new Dictionary<string, object>
+		{
+			{ "tutTime", Tutorial.singleton.GetTutorialTime()},
+		});
+		                      
 	
 	}
 	

@@ -49,6 +49,10 @@ public class Tutorial : MonoBehaviour {
 	
 	}
 	
+	public float GetTutorialTime(){
+		return Time.time - startTime;
+	}
+	
 	void FixedUpdate(){
 		if (GameMode.singleton.mode == GameMode.Mode.kSignalOff){
 			startTime = Time.time;
