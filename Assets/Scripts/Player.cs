@@ -245,22 +245,25 @@ public class Player : MonoBehaviour {
 				if (inputMethod == InputMethod.kJoystick){
 					float triggerValueOSX = Input.GetAxis("OSX_RightTrigger" + joystickId);
 					float triggerValuePC = Input.GetAxis("PC_RightTrigger" + joystickId);
+					Debug.Log ("Trigger value: " + triggerValuePC);
 	
-	
-					if (triggerValueOSX != 0){
+					if (triggerValueOSX != 0 && triggerValueOSX != -1){
 						hasTriggerChangedOSX = true;
 						hasTriggerChangedPC = false;
 					}
 					if (!hasTriggerChangedOSX){
 						triggerValueOSX = -1;
 					}
-					if (triggerValuePC != 0){
+					if (triggerValuePC != 0 && triggerValuePC != -1){
 						hasTriggerChangedPC = true;
 						hasTriggerChangedOSX = false;
 					}
 					if (!hasTriggerChangedPC){
 						triggerValuePC = -1;
-					}				
+					}	
+					else{
+						triggerValuePC = 2 * triggerValuePC - 1;
+					}
 					float triggerValue = triggerValueOSX + triggerValuePC + 1;
 					triggerValue = Mathf.Clamp(triggerValue, -1, 1);
 					if (disableJib){

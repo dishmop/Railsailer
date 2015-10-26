@@ -100,7 +100,7 @@ public class FronEndUI : MonoBehaviour {
 		numXBoxControllers = 0;
 		for (int i = 0; i < names.Count(); ++i){
 //			Debug.Log(names[i]);
-			if (names[i] == "©Microsoft Corporation Xbox 360 Wired Controller"){
+			if (names[i].ToLower().Contains("xbox 360")){
 				numXBoxControllers++;
 			}
 		}	

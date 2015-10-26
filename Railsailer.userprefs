@@ -1,9 +1,10 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workspace />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/GameMode.cs">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="MonoDevelop.Default" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\Player.cs">
     <Files>
-      <File FileName="../../BuildServer/Code/Railsailer/Assets/Scripts/QuitOnEsc.cs" Line="21" Column="4" />
-      <File FileName="Assets/Scripts/GameMode.cs" Line="98" Column="3" />
+      <File FileName="Assets\Scripts\GameMode.cs" Line="98" Column="3" />
+      <File FileName="Assets\Scripts\FronEndUI.cs" Line="99" Column="18" />
+      <File FileName="Assets\Scripts\Player.cs" Line="265" Column="8" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
