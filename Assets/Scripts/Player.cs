@@ -244,8 +244,9 @@ public class Player : MonoBehaviour {
 			if (joystickId != "Junk"){
 				if (inputMethod == InputMethod.kJoystick){
 					float triggerValueOSX = Input.GetAxis("OSX_RightTrigger" + joystickId);
-					float triggerValuePC = Input.GetAxis("PC_RightTrigger" + joystickId);
-					Debug.Log ("Trigger value: " + triggerValuePC);
+					float triggerValuePC = Mathf.Clamp01(-Input.GetAxis("PC_RightTrigger" + joystickId));
+					//float triggerValueAll = Input.GetAxis("PC_RightTrigger-All");
+					//Debug.Log ("ALL Trigger value: " + triggerValuePC);
 	
 					if (triggerValueOSX != 0 && triggerValueOSX != -1){
 						hasTriggerChangedOSX = true;
