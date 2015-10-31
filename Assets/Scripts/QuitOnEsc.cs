@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
-using System.Collections.Generic;
-using UnityEngine.Analytics;
+//using System.Collections.Generic;
+//using UnityEngine.Analytics;
 
 public class QuitOnEsc : MonoBehaviour {
 
@@ -34,10 +34,12 @@ public class QuitOnEsc : MonoBehaviour {
 		// Test for exit
 		if (Input.GetKeyDown (KeyCode.Escape)) {
 			if (OnQuitLevelName != null && OnQuitLevelName != ""){
-				Analytics.CustomEvent("quitLevel", new Dictionary<string, object>
-				                      {
-					{ "duration", Time.fixedTime - startTime },
-				});	
+				GoogleAnalytics.Client.SendTimedEventHit("gameFlow", "quitLevel", Application.loadedLevelName, Time.fixedTime - startTime);
+				
+//				Analytics.CustomEvent("quitLevel", new Dictionary<string, object>
+//				                      {
+//					{ "duration", Time.fixedTime - startTime },
+//				});	
 				Application.LoadLevel(OnQuitLevelName);
 			}
 			else{

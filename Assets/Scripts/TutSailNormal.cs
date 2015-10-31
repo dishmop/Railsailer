@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
-using System.Collections.Generic;
-using UnityEngine.Analytics;
+//using System.Collections.Generic;
+//using UnityEngine.Analytics;
 
 
 public class TutSailNormal : MonoBehaviour {
@@ -10,10 +10,13 @@ public class TutSailNormal : MonoBehaviour {
 	void Start () {
 		Tutorial.singleton.overlay.GetComponent<PlayerOverlay>().disableSailDirLine = false;
 		
-		Analytics.CustomEvent("tutorial1SailNormal", new Dictionary<string, object>
-		{
-			{ "tutTime", Tutorial.singleton.GetTutorialTime()},
-		});
+		GoogleAnalytics.Client.SendTimedEventHit("gameFlow", "tutorial1SailNormal", "", Tutorial.singleton.GetTutorialTime());
+		GoogleAnalytics.Client.SendScreenHit("tutorial1SailNormal");
+		
+//		Analytics.CustomEvent("tutorial1SailNormal", new Dictionary<string, object>
+//		{
+//			{ "tutTime", Tutorial.singleton.GetTutorialTime()},
+//		});
 		                      
 	
 	}

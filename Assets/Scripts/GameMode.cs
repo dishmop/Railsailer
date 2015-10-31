@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System;
-using System.Collections.Generic;
-using UnityEngine.Analytics;
+//using System.Collections.Generic;
+//using UnityEngine.Analytics;
 
 public class GameMode : MonoBehaviour {
 	public static GameMode singleton = null;
@@ -58,11 +58,13 @@ public class GameMode : MonoBehaviour {
 			mode = Mode.kRaceComplete;
 			horn.Play ();
 		}
-		Analytics.CustomEvent("raceComplete", new Dictionary<string, object>
-		                      {
-			{ "player", winner.name },
-			{ "raceTime", Time.fixedTime - startTime},
-		});		
+		GoogleAnalytics.Client.SendTimedEventHit("gameFlow", "raceComplete", winner.name + winner.GetComponent<Player>().inputMethod.ToString(), Time.fixedTime - startTime);
+//		
+//		Analytics.CustomEvent("raceComplete", new Dictionary<string, object>
+//		                      {
+//			{ "player", winner.name },
+//			{ "raceTime", Time.fixedTime - startTime},
+//		});		
 	}
 	
 	public void ReturnToMainMenu(){
@@ -82,13 +84,14 @@ public class GameMode : MonoBehaviour {
 		joystick1Done = false;
 		joystick2Done = false;
 		
+		GoogleAnalytics.Client.SendEventHit("gameFlow", "raceStart_" + Application.loadedLevelName, "Player1" + PlayerPrefs.GetString("Player1") + "_Player2" + PlayerPrefs.GetString("Player2"));
 		
-		Analytics.CustomEvent("gameStart", new Dictionary<string, object>
-		                      {
-			{ "leveName", Application.loadedLevelName },
-			{ "player1Ctrl", PlayerPrefs.GetString("Player1") },
-			{ "player2Ctrl", PlayerPrefs.GetString("Player2") }
-		});
+//		Analytics.CustomEvent("gameStart", new Dictionary<string, object>
+//		{
+//			{ "leveName", Application.loadedLevelName },
+//			{ "player1Ctrl", PlayerPrefs.GetString("Player1") },
+//			{ "player2Ctrl", PlayerPrefs.GetString("Player2") }
+//		});
 
 		
 	

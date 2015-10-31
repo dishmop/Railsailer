@@ -4,7 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Vectrosity;
-using UnityEngine.Analytics;
+//using UnityEngine.Analytics;
 
 public class Player : MonoBehaviour {
 	public GameObject bodyGO;
@@ -969,11 +969,13 @@ public class Player : MonoBehaviour {
 	}
 	
 	void OnTriggerStartLine(){
-		Analytics.CustomEvent("lapComplete", new Dictionary<string, object>
-		                      {
-			{ "player", name },
-			{ "lapTime", Time.fixedTime - startTime},
-		});		
+		GoogleAnalytics.Client.SendTimedEventHit("gameFlow", "lapComplete_" + Application.loadedLevelName, name + PlayerPrefs.GetString("Player1"), Time.fixedTime - startTime);
+//		
+//		Analytics.CustomEvent("lapComplete", new Dictionary<string, object>
+//		                      {
+//			{ "player", name },
+//			{ "lapTime", Time.fixedTime - startTime},
+//		});		
 		
 		if (numLapsComplete == GameConfig.singleton.totalNumLaps){
 			GameMode.singleton.TriggerWinner(gameObject);
